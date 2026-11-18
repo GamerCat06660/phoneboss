@@ -239,7 +239,7 @@
         </header>
 
         <!-- Контейнер всплывающих уведомлений -->
-        <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm pointer-events-none flex flex-col gap-2"></div>
+        <div id="toast-container" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm pointer-events-none flex flex-col items-center"></div>
 
         <!-- ОСНОВНАЯ ОБЛАСТЬ ЭКРАНА СМАРТФОНА -->
         <main class="relative flex-1 overflow-hidden">
@@ -821,6 +821,16 @@
                                 <div class="text-[10px] text-slate-400">Щелчки, пайка, касса и уведомления</div>
                             </div>
                             <button id="settings-sfx-btn" onclick="toggleSound()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition">
+                                Вкл
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-2xl p-3">
+                            <div>
+                                <div class="text-xs font-bold text-white">Виброотклик (Haptic)</div>
+                                <div class="text-[10px] text-slate-400">Отдача при откручивании винтов, КЗ и продажах</div>
+                            </div>
+                            <button id="settings-haptic-btn" onclick="toggleHaptic()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition">
                                 Вкл
                             </button>
                         </div>
@@ -2274,7 +2284,37 @@
             return audioCtx;
         }
 
+        window.triggerHaptic = function(pattern = 15) {
+            if (state && state.hapticEnabled === false) return;
+            if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                try {
+                    navigator.vibrate(pattern);
+                } catch (e) {}
+            }
+        };
+
+        window.toggleHaptic = function() {
+            state.hapticEnabled = state.hapticEnabled === false ? true : false;
+            updateUI();
+            if (state.hapticEnabled) triggerHaptic([20, 30, 20]);
+            showToast(state.hapticEnabled ? 'Виброотклик включён' : 'Виброотклик отключён', 'info');
+        };
+
         window.playSfx = function(type = 'tap') {
+            const hapticMap = {
+                tap: 10,
+                screw: [12, 25, 12],
+                heat: 18,
+                flip: 22,
+                pop: 15,
+                buy: [20, 30, 35],
+                cash: [25, 40, 25, 40, 50],
+                success: [20, 35, 40],
+                error: [45, 40, 45],
+                spark: [80, 40, 100, 40, 120]
+            };
+            triggerHaptic(hapticMap[type] || 12);
+
             if (state && state.soundEnabled === false) return;
             const ctx = getAudioCtx();
             if (!ctx) return;
@@ -2602,6 +2642,7 @@
             frameStyle: 'default',
             snowEnabled: true,
             soundEnabled: true,
+            hapticEnabled: true,
             musicEnabled: false,
             musicVolume: 45,
             marketFilter: 'all',
@@ -2772,26 +2813,37 @@
             return res;
         }
 
+        let activeToastTimer = null;
+        let activeToastRemoveTimer = null;
+
         window.showToast = function(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             if (!container) return;
-            // Очищаем предыдущие уведомления, чтобы они не накапливались стопкой и не накладывались друг на друга
+
+            if (activeToastTimer) clearTimeout(activeToastTimer);
+            if (activeToastRemoveTimer) clearTimeout(activeToastRemoveTimer);
             container.innerHTML = '';
+
+            if (type === 'error') triggerHaptic([35, 35, 35]);
+
             const el = document.createElement('div');
             const colors = {
-                success: 'bg-emerald-950/95 border-emerald-500/60 text-emerald-200',
-                error: 'bg-rose-950/95 border-rose-500/60 text-rose-200',
-                info: 'bg-slate-900/95 border-sky-500/50 text-slate-100'
+                success: 'bg-emerald-950/95 border-emerald-500/70 text-emerald-200',
+                error: 'bg-rose-950/95 border-rose-500/70 text-rose-200',
+                info: 'bg-slate-900/95 border-sky-500/60 text-slate-100'
             };
-            el.className = `px-3.5 py-2.5 rounded-2xl border text-xs font-bold shadow-xl backdrop-blur-md transition-all duration-300 screen-transition ${colors[type] || colors.info}`;
+            el.className = `w-full px-3 py-2 rounded-2xl border text-[11px] leading-snug font-bold shadow-2xl backdrop-blur-md transition-all duration-200 screen-transition ${colors[type] || colors.info}`;
             el.textContent = msg;
             container.appendChild(el);
-            setTimeout(() => {
+
+            activeToastTimer = setTimeout(() => {
                 if (!el.parentNode) return;
                 el.style.opacity = '0';
-                el.style.transform = 'translateY(-8px)';
-                setTimeout(() => { if (el.parentNode) el.remove(); }, 280);
-            }, 2800);
+                el.style.transform = 'translateY(-6px) scale(0.98)';
+                activeToastRemoveTimer = setTimeout(() => {
+                    if (el.parentNode) el.remove();
+                }, 200);
+            }, 2400);
         };
 
         function saveLocal() {
@@ -2845,6 +2897,15 @@
                 const sfxOn = state.soundEnabled !== false;
                 sfxBtn.textContent = sfxOn ? 'Вкл' : 'Выкл';
                 sfxBtn.className = sfxOn
+                    ? 'px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition'
+                    : 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs transition';
+            }
+
+            const hapBtn = document.getElementById('settings-haptic-btn');
+            if (hapBtn) {
+                const hapOn = state.hapticEnabled !== false;
+                hapBtn.textContent = hapOn ? 'Вкл' : 'Выкл';
+                hapBtn.className = hapOn
                     ? 'px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition'
                     : 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs transition';
             }
