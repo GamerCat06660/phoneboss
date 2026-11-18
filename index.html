@@ -215,27 +215,24 @@
     <!-- Корпус смартфона игрока -->
     <div id="phone-shell" class="relative w-full h-full max-w-md mx-auto wallpaper-default shell-frame-default flex flex-col overflow-hidden shadow-2xl border-x border-slate-800/70">
 
-        <!-- Контейнер падающего снега (кастомизация) -->
-        <div id="snow-overlay" class="hidden fixed inset-0 max-w-md mx-auto pointer-events-none z-40 overflow-hidden"></div>
-
-        <!-- Верхний системный статус-бар ОС (понижен от системной шторки телефона) -->
-        <header style="padding-top: max(14px, env(safe-area-inset-top));" class="shrink-0 min-h-[58px] pb-2 px-4 flex items-center justify-between bg-slate-950/80 backdrop-blur-xl border-b border-white/5 z-30">
-            <div class="flex items-center gap-2">
-                <span id="status-time" class="text-xs font-extrabold text-white tracking-tight">12:45</span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/25">
+        <!-- Верхний системный статус-бар ОС (островок аккаунта строго по центру) -->
+        <header style="padding-top: max(14px, env(safe-area-inset-top));" class="shrink-0 min-h-[58px] pb-2 px-3.5 grid grid-cols-[1fr_auto_1fr] items-center gap-1.5 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 z-30">
+            <div class="flex items-center gap-1.5 justify-self-start min-w-0">
+                <span id="status-time" class="text-xs font-extrabold text-white tracking-tight shrink-0">12:45</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/25 shrink-0">
                     День <span id="hud-day">1</span>
                 </span>
             </div>
 
-            <button onclick="openApp('profile')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-slate-700/80 text-[10px] font-semibold hover:border-slate-500 transition">
-                <span id="cloud-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                <span id="cloud-status-label" class="text-slate-200 max-w-[82px] truncate">Офлайн</span>
+            <button onclick="openApp('profile')" class="justify-self-center flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 border border-slate-700/80 text-[10px] font-semibold hover:border-slate-500 transition shadow-inner">
+                <span id="cloud-dot" class="w-2 h-2 rounded-full bg-slate-500 shrink-0"></span>
+                <span id="cloud-status-label" class="text-slate-200 max-w-[84px] truncate">Офлайн</span>
             </button>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 justify-self-end min-w-0">
                 <div class="flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                     <i class="fa-solid fa-ruble-sign text-emerald-400 text-[10px]"></i>
-                    <span id="hud-money" class="text-xs font-black text-emerald-300">15 000 ₽</span>
+                    <span id="hud-money" class="text-xs font-black text-emerald-300 whitespace-nowrap">15 000 ₽</span>
                 </div>
                 <i class="fa-solid fa-battery-full text-slate-300 text-xs hidden sm:inline"></i>
             </div>
@@ -246,11 +243,13 @@
 
         <!-- ОСНОВНАЯ ОБЛАСТЬ ЭКРАНА СМАРТФОНА -->
         <main class="relative flex-1 overflow-hidden">
+            <!-- Живые обои со снегом (постоянно идут на фоне обоев и не сбрасываются при переключении приложений) -->
+            <div id="snow-overlay" class="absolute inset-0 pointer-events-none z-0 overflow-hidden"></div>
 
             <!-- ==================== 1. РАБОЧИЙ СТОЛ (HOME SCREEN) ==================== -->
-            <section id="screen-home" class="w-full h-full flex flex-col justify-between p-3 overflow-y-auto no-scrollbar select-none">
+            <section id="screen-home" class="relative z-[1] w-full h-full flex flex-col justify-between p-3 overflow-y-auto no-scrollbar select-none">
                 
-                <div class="space-y-2.5">
+                <div class="relative z-10 space-y-2.5">
                     <!-- Виджет Перекуп Банка и Репутации -->
                     <div id="home-bank-widget" class="bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden">
                         <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
@@ -353,7 +352,7 @@
                 </div>
 
                 <!-- Нижний стеклянный Dock с основными приложениями и бейджами -->
-                <div id="home-dock-bar" class="mt-2 bg-white/10 backdrop-blur-xl border border-white/15 rounded-[26px] py-2 px-2.5 flex items-center justify-around shadow-2xl">
+                <div id="home-dock-bar" class="relative z-10 mt-2 bg-white/10 backdrop-blur-xl border border-white/15 rounded-[26px] py-2 px-2.5 flex items-center justify-around shadow-2xl">
                     <button onclick="openApp('market')" class="app-icon-btn flex flex-col items-center gap-0.5" title="Авито">
                         <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md border border-white/20 relative">
                             <i class="fa-solid fa-bag-shopping text-lg"></i>
@@ -389,7 +388,7 @@
             </section>
 
             <!-- ==================== 2. ПРИЛОЖЕНИЕ АВИТО (НОВЫЙ ТЁМНЫЙ ДИЗАЙН) ==================== -->
-            <section id="screen-market" class="hidden w-full h-full flex flex-col bg-[#0d0d0d] screen-transition">
+            <section id="screen-market" class="hidden relative z-10 w-full h-full flex flex-col bg-[#0d0d0d] screen-transition">
                 
                 <!-- 1. ВЕРХНЯЯ ШАПКА: ВКЛАДКА «ГЛАВНОЕ» -->
                 <div id="avito-header-home" class="shrink-0 px-3 pt-2.5 pb-2 bg-[#0d0d0d] space-y-2.5">
@@ -517,7 +516,7 @@
             </section>
 
             <!-- ==================== 3. ПРИЛОЖЕНИЕ МАСТЕРСКАЯ ==================== -->
-            <section id="screen-workshop" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-workshop" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -537,7 +536,7 @@
             </section>
 
             <!-- ==================== 4. ПРИЛОЖЕНИЕ ЗАПЧАСТИ ==================== -->
-            <section id="screen-parts" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-parts" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -557,7 +556,7 @@
             </section>
 
             <!-- ==================== 5. ПРИЛОЖЕНИЕ МОИ ТРУБКИ ==================== -->
-            <section id="screen-inventory" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-inventory" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -574,7 +573,7 @@
             </section>
 
             <!-- ==================== 6. ПРИЛОЖЕНИЕ ПРОФИЛЬ ==================== -->
-            <section id="screen-profile" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-profile" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -856,8 +855,8 @@
                                     <i class="fa-solid fa-snowflake"></i>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-bold text-white">Снегопад на экране</div>
-                                    <div class="text-[10px] text-slate-400">Зимняя атмосфера поверх интерфейса</div>
+                                    <div class="text-xs font-bold text-white">Снегопад на обоях</div>
+                                    <div class="text-[10px] text-slate-400">Живые зимние обои на рабочем столе</div>
                                 </div>
                             </div>
                             <button id="settings-snow-btn" onclick="toggleSnow()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 font-black text-xs transition">
@@ -938,7 +937,7 @@
             </section>
 
             <!-- ==================== 7. ПРИЛОЖЕНИЕ ДИАГНОСТИКА (3uTools) ==================== -->
-            <section id="screen-diag" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-diag" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -954,7 +953,7 @@
             </section>
 
             <!-- ==================== 8. ПРИЛОЖЕНИЕ ЛОМБАРД / СКУПКА ==================== -->
-            <section id="screen-lombard" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-lombard" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -970,7 +969,7 @@
             </section>
 
             <!-- ==================== 9. ПРИЛОЖЕНИЕ ПРОКАЧКА ==================== -->
-            <section id="screen-upgrades" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-upgrades" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
                         <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
@@ -986,7 +985,7 @@
             </section>
 
             <!-- ==================== 10. ПРИЛОЖЕНИЕ КОЛЛЕКЦИЯ / КАТАЛОГ ==================== -->
-            <section id="screen-collection" class="hidden w-full h-full flex flex-col bg-slate-950 screen-transition">
+            <section id="screen-collection" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-3.5 pt-3 pb-2.5 bg-slate-900 border-b border-slate-800 space-y-2">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
@@ -1029,9 +1028,9 @@
 
         </main>
 
-        <!-- Нижняя системная полоска навигации (понижена к нижнему краю) -->
-        <footer style="padding-bottom: max(4px, env(safe-area-inset-bottom));" class="shrink-0 h-11 pt-2 bg-slate-950/95 border-t border-white/10 flex items-end justify-center px-6 z-30">
-            <button onclick="goHome()" class="w-44 h-7 rounded-2xl flex items-end justify-center pb-1 group active:scale-95 transition" title="На главный экран">
+        <!-- Нижняя системная полоска навигации -->
+        <footer style="padding-bottom: max(10px, env(safe-area-inset-bottom));" class="shrink-0 h-12 pt-1.5 bg-slate-950/95 border-t border-white/10 flex items-center justify-center px-6 z-30">
+            <button onclick="goHome()" class="w-44 h-8 rounded-2xl flex items-center justify-center group active:scale-95 transition" title="На главный экран">
                 <span class="w-32 h-1.5 rounded-full bg-slate-500 group-hover:bg-slate-300 group-active:bg-white transition"></span>
             </button>
         </footer>
@@ -2436,8 +2435,8 @@
                 let html = '';
                 for (let i = 0; i < 28; i++) {
                     const left = (i * 3.7) % 100;
-                    const delay = ((i * 0.43) % 6).toFixed(2);
                     const duration = (5.5 + (i % 5) * 1.3).toFixed(2);
+                    const delay = (-((i * 0.67) % parseFloat(duration))).toFixed(2);
                     const size = 9 + (i % 4) * 3;
                     const sym = flakes[i % flakes.length];
                     html += `<span class="snowflake-item" style="left:${left}%; animation-delay:${delay}s; animation-duration:${duration}s; font-size:${size}px;">${sym}</span>`;
@@ -2493,7 +2492,7 @@
             widgetTheme: 'emerald',
             iconPack: 'default',
             frameStyle: 'default',
-            snowEnabled: false,
+            snowEnabled: true,
             soundEnabled: true,
             musicEnabled: false,
             musicVolume: 45,
@@ -2696,6 +2695,7 @@
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     state = { ...state, ...parsed };
+                    if (typeof parsed.snowEnabled !== 'boolean') state.snowEnabled = true;
                     state.upgrades = { solderingStation: false, eloquenceLevel: 0, optbazaFriend: false, ...(parsed.upgrades || {}) };
                     state.selectedWorkshopPart = null;
                     migrateLegacyData();
