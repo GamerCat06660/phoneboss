@@ -332,6 +332,13 @@
                             <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Коллекция</span>
                         </button>
 
+                        <button onclick="openApp('casino')" class="app-icon-btn flex flex-col items-center gap-1 group">
+                            <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-400 via-violet-600 to-indigo-950 flex items-center justify-center shadow-lg shadow-violet-950/70 border border-white/25 relative">
+                                <i class="fa-solid fa-circle-notch text-xl text-amber-300"></i>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Апгрейд</span>
+                        </button>
+
                         <button onclick="openApp('profile')" class="app-icon-btn flex flex-col items-center gap-1 group">
                             <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-cyan-400 via-sky-600 to-slate-800 flex items-center justify-center shadow-lg shadow-cyan-950/60 border border-white/25 relative">
                                 <i class="fa-solid fa-gear text-xl text-white"></i>
@@ -1023,6 +1030,107 @@
                 </div>
 
                 <div id="collection-list" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3"></div>
+            </section>
+
+            <!-- ==================== 11. ПРИЛОЖЕНИЕ АПГРЕЙД / КАЗИНО ==================== -->
+            <section id="screen-casino" class="hidden relative z-10 w-full h-full flex flex-col bg-gradient-to-b from-[#170e2e] via-[#120b24] to-[#0a0714] screen-transition">
+                <div class="shrink-0 px-4 py-3 bg-[#140c29]/90 border-b border-purple-500/20 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/15 flex items-center justify-center text-slate-200">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-base font-black text-white leading-none">Апгрейд Баланса</h2>
+                            <span class="text-[11px] text-purple-300/80">Шанс 25% / 50% / 75% • Выплата фиксированная x1.9</span>
+                        </div>
+                    </div>
+                    <div class="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-black text-emerald-300" id="casino-balance-badge">
+                        15 000 ₽
+                    </div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col justify-between space-y-4">
+                    
+                    <!-- Колесо апгрейда (зона выигрыша неподвижна, крутится белая стрелка) -->
+                    <div class="relative mx-auto w-64 h-64 flex items-center justify-center my-1">
+                        <!-- Неоновое свечение за колесом -->
+                        <div id="casino-wheel-glow" class="absolute inset-4 rounded-full bg-emerald-500/15 blur-2xl transition-colors duration-300"></div>
+
+                        <!-- Неподвижное кольцо с зелёным выигрышным сектором -->
+                        <div class="relative w-60 h-60 flex items-center justify-center">
+                            <svg viewBox="0 0 220 220" class="w-full h-full overflow-visible drop-shadow-[0_0_24px_rgba(0,0,0,0.65)]">
+                                <!-- Внутреннее тёмное кольцо -->
+                                <circle cx="110" cy="110" r="82" fill="none" stroke="#241942" stroke-width="14" />
+                                <!-- Базовый тёмный трек внешнего кольца -->
+                                <circle cx="110" cy="110" r="95" fill="none" stroke="#2b214a" stroke-width="15" />
+                                <!-- Неподвижный зелёный сектор, центрированный строго снизу (на 6 часах) -->
+                                <circle id="casino-green-arc" cx="110" cy="110" r="95" fill="none" stroke="#2be370" stroke-width="15" stroke-linecap="butt"
+                                        stroke-dasharray="298.45 596.90" transform="rotate(0 110 110)"
+                                        style="transition: stroke-dasharray 0.35s cubic-bezier(0.22, 1, 0.36, 1), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);" />
+                                <!-- Тонкая риска центра зелёной зоны снизу на 6 часах -->
+                                <line x1="110" y1="196" x2="110" y2="214" stroke="#64588a" stroke-width="1.5" />
+                            </svg>
+                        </div>
+
+                        <!-- Вращающаяся белая треугольная стрелка вокруг центра колеса -->
+                        <div id="casino-arrow-spinner" class="absolute w-60 h-60 z-20 pointer-events-none flex items-start justify-center">
+                            <svg width="26" height="24" viewBox="0 0 26 24" class="-mt-2.5 drop-shadow-[0_3px_8px_rgba(0,0,0,0.9)]">
+                                <polygon points="2,2 24,2 13,22" fill="#ffffff" />
+                            </svg>
+                        </div>
+
+                        <!-- Центральный индикатор шанса и выплаты -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-6">
+                            <div id="casino-center-chance" class="text-4xl font-black text-[#fde068] tracking-tight drop-shadow-[0_0_14px_rgba(253,224,104,0.45)]">
+                                50%
+                            </div>
+                            <div class="text-xs font-semibold text-slate-300 mt-0.5">
+                                выплата <span class="text-white font-extrabold">x1,9</span>
+                            </div>
+                            <div id="casino-result-badge" class="hidden mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"></div>
+                        </div>
+                    </div>
+
+                    <!-- Выбор шанса: 25% / 50% / 75% -->
+                    <div class="space-y-3">
+                        <div class="bg-[#1b1236] border border-purple-500/25 rounded-2xl p-2 grid grid-cols-3 gap-2">
+                            <button onclick="setCasinoChance(25)" id="casino-ch-25" class="py-2.5 rounded-xl text-xs font-black bg-white/5 text-slate-300 hover:text-white transition">
+                                25%
+                            </button>
+                            <button onclick="setCasinoChance(50)" id="casino-ch-50" class="py-2.5 rounded-xl text-xs font-black bg-[#2be370] text-slate-950 shadow-lg transition">
+                                50%
+                            </button>
+                            <button onclick="setCasinoChance(75)" id="casino-ch-75" class="py-2.5 rounded-xl text-xs font-black bg-white/5 text-slate-300 hover:text-white transition">
+                                75%
+                            </button>
+                        </div>
+
+                        <!-- Ввод суммы ставки и расчёт возможного выигрыша 1.9x -->
+                        <div class="bg-[#1b1236] border border-purple-500/25 rounded-2xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300 font-semibold">Сумма ставки:</span>
+                                <span class="text-slate-400">Выигрыш (1.9x): <strong id="casino-win-preview" class="text-[#2be370] font-black">1 900 ₽</strong></span>
+                            </div>
+
+                            <div class="relative">
+                                <input id="casino-bet-input" oninput="updateCasinoCalc()" type="number" min="100" step="100" value="1000"
+                                       class="w-full bg-[#100a21] border border-purple-500/35 rounded-xl pl-3.5 pr-9 py-2.5 text-base font-black text-white focus:outline-none focus:border-[#2be370]">
+                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">₽</span>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button onclick="adjustCasinoBet('min')" class="py-1.5 rounded-lg bg-[#100a21] hover:bg-white/10 border border-white/10 text-[10px] font-bold text-slate-300">500 ₽</button>
+                                <button onclick="adjustCasinoBet('half')" class="py-1.5 rounded-lg bg-[#100a21] hover:bg-white/10 border border-white/10 text-[10px] font-bold text-slate-300">1/2</button>
+                                <button onclick="adjustCasinoBet('double')" class="py-1.5 rounded-lg bg-[#100a21] hover:bg-white/10 border border-white/10 text-[10px] font-bold text-slate-300">x2</button>
+                                <button onclick="adjustCasinoBet('all')" class="py-1.5 rounded-lg bg-[#100a21] hover:bg-white/10 border border-amber-400/30 text-[10px] font-extrabold text-amber-300">Ва-банк</button>
+                            </div>
+                        </div>
+
+                        <button id="casino-spin-btn" onclick="spinCasinoUpgrade()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#2be370] to-emerald-400 hover:opacity-95 active:scale-[0.98] text-slate-950 font-black text-sm shadow-xl shadow-emerald-950/50 transition">
+                            Апгрейд за 1 000 ₽ → 1 900 ₽
+                        </button>
+                    </div>
+                </div>
             </section>
 
 
@@ -2667,20 +2775,23 @@
         window.showToast = function(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             if (!container) return;
+            // Очищаем предыдущие уведомления, чтобы они не накапливались стопкой и не накладывались друг на друга
+            container.innerHTML = '';
             const el = document.createElement('div');
             const colors = {
                 success: 'bg-emerald-950/95 border-emerald-500/60 text-emerald-200',
                 error: 'bg-rose-950/95 border-rose-500/60 text-rose-200',
                 info: 'bg-slate-900/95 border-sky-500/50 text-slate-100'
             };
-            el.className = `px-3.5 py-2.5 rounded-2xl border text-xs font-bold shadow-xl backdrop-blur-md transition-all duration-300 ${colors[type] || colors.info}`;
+            el.className = `px-3.5 py-2.5 rounded-2xl border text-xs font-bold shadow-xl backdrop-blur-md transition-all duration-300 screen-transition ${colors[type] || colors.info}`;
             el.textContent = msg;
             container.appendChild(el);
             setTimeout(() => {
+                if (!el.parentNode) return;
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(-8px)';
-                setTimeout(() => el.remove(), 300);
-            }, 3400);
+                setTimeout(() => { if (el.parentNode) el.remove(); }, 280);
+            }, 2800);
         };
 
         function saveLocal() {
@@ -2873,7 +2984,7 @@
                 clearInterval(lombardTimerInterval);
                 lombardTimerInterval = null;
             }
-            const screens = ['home', 'market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'profile'];
+            const screens = ['home', 'market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'profile'];
             screens.forEach(s => {
                 const el = document.getElementById('screen-' + s);
                 if (el) el.classList.add('hidden');
@@ -2889,6 +3000,7 @@
             if (appName === 'lombard') renderLombardApp();
             if (appName === 'upgrades') renderUpgradesApp();
             if (appName === 'collection') renderCollectionApp();
+            if (appName === 'casino') initCasinoScreen();
             if (appName === 'profile') {
                 const shopInput = document.getElementById('settings-shop-input');
                 if (shopInput) shopInput.value = state.shopName || 'Perekup Bank';
@@ -6223,6 +6335,179 @@
                     </div>
                 `;
             }).join('');
+        };
+
+
+        // ==================== 11. КАЗИНО / АПГРЕЙД БАЛАНСА (25 / 50 / 75%, ВЫПЛАТА 1.9x) ====================
+        let casinoChance = 50;
+        let casinoSpinning = false;
+        let casinoCurrentDeg = 0;
+
+        window.initCasinoScreen = function() {
+            const balBadge = document.getElementById('casino-balance-badge');
+            if (balBadge) balBadge.textContent = formatRub(state.money);
+            setCasinoChance(casinoChance, true);
+            updateCasinoCalc();
+        };
+
+        window.setCasinoChance = function(pct, silent = false) {
+            if (casinoSpinning) return;
+            casinoChance = pct;
+            if (!silent) playSfx('tap');
+
+            [25, 50, 75].forEach(val => {
+                const btn = document.getElementById('casino-ch-' + val);
+                if (!btn) return;
+                btn.className = val === pct
+                    ? 'py-2.5 rounded-xl text-xs font-black bg-[#2be370] text-slate-950 shadow-lg transition'
+                    : 'py-2.5 rounded-xl text-xs font-black bg-white/5 text-slate-300 hover:text-white transition';
+            });
+
+            const centerLbl = document.getElementById('casino-center-chance');
+            if (centerLbl) centerLbl.textContent = pct + '%';
+
+            // Длина окружности r=95 равна 2 * PI * 95 = 596.9026
+            // Центрируем зелёный сектор строго снизу (90° в SVG-координатах = 6 часов)
+            const arc = document.getElementById('casino-green-arc');
+            if (arc) {
+                const totalCirc = 2 * Math.PI * 95;
+                const greenLen = (pct / 100) * totalCirc;
+                const spanDeg = (pct / 100) * 360;
+                const startDeg = 90 - spanDeg / 2;
+                arc.setAttribute('stroke-dasharray', `${greenLen.toFixed(2)} ${totalCirc.toFixed(2)}`);
+                arc.setAttribute('transform', `rotate(${startDeg.toFixed(2)} 110 110)`);
+            }
+
+            const resBadge = document.getElementById('casino-result-badge');
+            if (resBadge) resBadge.classList.add('hidden');
+        };
+
+        window.adjustCasinoBet = function(mode) {
+            if (casinoSpinning) return;
+            const input = document.getElementById('casino-bet-input');
+            if (!input) return;
+            let cur = parseInt(input.value, 10) || 500;
+            if (mode === 'min') cur = 500;
+            else if (mode === 'half') cur = Math.max(100, Math.floor(cur / 2 / 100) * 100);
+            else if (mode === 'double') cur = Math.min(state.money, cur * 2);
+            else if (mode === 'all') cur = Math.max(100, Math.floor(state.money));
+            input.value = Math.max(100, cur);
+            playSfx('tap');
+            updateCasinoCalc();
+        };
+
+        window.updateCasinoCalc = function() {
+            const input = document.getElementById('casino-bet-input');
+            const winPrev = document.getElementById('casino-win-preview');
+            const spinBtn = document.getElementById('casino-spin-btn');
+            const balBadge = document.getElementById('casino-balance-badge');
+            if (balBadge) balBadge.textContent = formatRub(state.money);
+
+            const bet = Math.max(0, parseInt(input?.value, 10) || 0);
+            const payout = Math.round(bet * 1.9);
+            if (winPrev) winPrev.textContent = formatRub(payout);
+            if (spinBtn && !casinoSpinning) {
+                spinBtn.textContent = bet > 0
+                    ? `Апгрейд за ${formatRub(bet)} → ${formatRub(payout)}`
+                    : 'Введите сумму ставки';
+            }
+        };
+
+        window.spinCasinoUpgrade = function() {
+            if (casinoSpinning) return;
+            const input = document.getElementById('casino-bet-input');
+            const bet = parseInt(input?.value, 10) || 0;
+            if (bet < 100) {
+                showToast('Минимальная ставка — 100 ₽!', 'error');
+                return;
+            }
+            if (state.money < bet) {
+                showToast('Недостаточно денег на балансе для этой ставки!', 'error');
+                playSfx('error');
+                return;
+            }
+
+            // Списываем поставленную сумму сразу
+            state.money -= bet;
+            updateUI();
+            updateCasinoCalc();
+
+            const won = (Math.random() * 100) < casinoChance;
+            const winSectorDeg = (casinoChance / 100) * 360;
+
+            // Зелёный сектор неподвижен и центрирован снизу (180° в системе координат стрелки, где 0° = верх).
+            // Выигрышный интервал углов стрелки: [180 - winSectorDeg/2, 180 + winSectorDeg/2].
+            const winStart = 180 - winSectorDeg / 2;
+            const winEnd = 180 + winSectorDeg / 2;
+            let targetArrowAngle;
+            if (won) {
+                const margin = Math.min(8, winSectorDeg * 0.14);
+                targetArrowAngle = (winStart + margin) + Math.random() * Math.max(2, winSectorDeg - margin * 2);
+            } else {
+                const loseSpan = 360 - winSectorDeg;
+                const margin = Math.min(8, loseSpan * 0.14);
+                const offsetInLose = margin + Math.random() * Math.max(2, loseSpan - margin * 2);
+                targetArrowAngle = (winEnd + offsetInLose) % 360;
+            }
+
+            const desiredMod = targetArrowAngle % 360;
+            const currentMod = ((casinoCurrentDeg % 360) + 360) % 360;
+            const delta = (desiredMod - currentMod + 360) % 360;
+            casinoCurrentDeg += 360 * 3 + delta;
+
+            casinoSpinning = true;
+            const spinBtn = document.getElementById('casino-spin-btn');
+            const resBadge = document.getElementById('casino-result-badge');
+            const glow = document.getElementById('casino-wheel-glow');
+            const spinner = document.getElementById('casino-arrow-spinner');
+
+            if (resBadge) resBadge.classList.add('hidden');
+            if (glow) glow.className = 'absolute inset-4 rounded-full bg-purple-500/25 blur-2xl transition-colors duration-300';
+            if (spinBtn) {
+                spinBtn.disabled = true;
+                spinBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                spinBtn.textContent = 'Крутим колесо...';
+            }
+
+            playSfx('flip');
+            if (spinner) {
+                spinner.style.transition = 'transform 3.8s cubic-bezier(0.16, 0.88, 0.24, 1)';
+                spinner.style.transform = `rotate(${casinoCurrentDeg}deg)`;
+            }
+
+            setTimeout(() => {
+                casinoSpinning = false;
+                if (spinBtn) {
+                    spinBtn.disabled = false;
+                    spinBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                }
+
+                if (won) {
+                    const payout = Math.round(bet * 1.9);
+                    state.money += payout;
+                    playSfx('cash');
+                    if (glow) glow.className = 'absolute inset-4 rounded-full bg-emerald-500/35 blur-2xl transition-colors duration-300';
+                    if (resBadge) {
+                        resBadge.textContent = `Успех! +${formatRub(payout)}`;
+                        resBadge.className = 'mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#2be370]/20 text-[#2be370] border border-[#2be370]/40';
+                        resBadge.classList.remove('hidden');
+                    }
+                    showToast(`🎉 Апгрейд сработал! Выигрыш ${formatRub(payout)} (x1.9)!`, 'success');
+                } else {
+                    playSfx('error');
+                    if (glow) glow.className = 'absolute inset-4 rounded-full bg-rose-500/30 blur-2xl transition-colors duration-300';
+                    if (resBadge) {
+                        resBadge.textContent = `Неудача -${formatRub(bet)}`;
+                        resBadge.className = 'mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40';
+                        resBadge.classList.remove('hidden');
+                    }
+                    showToast(`💥 Апгрейд сгорел! Ставка ${formatRub(bet)} потеряна.`, 'error');
+                }
+
+                updateUI();
+                updateCasinoCalc();
+                saveToFirestore(false);
+            }, 3850);
         };
 
         window.buyUpgrade = function(type) {
