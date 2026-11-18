@@ -297,20 +297,29 @@
             <section id="screen-home" class="relative z-[1] w-full h-full flex flex-col justify-between p-3 overflow-y-auto no-scrollbar select-none">
                 
                 <div class="relative z-10 space-y-2.5">
-                    <!-- Виджет Перекуп Банка и Репутации -->
-                    <div id="home-bank-widget" class="bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden">
+                    <!-- Виджет Перекуп Банка и Репутации (кликабельный -> открывает Банк, Налоги и Займы) -->
+                    <div id="home-bank-widget" onclick="openApp('bank')" class="cursor-pointer active:scale-[0.99] transition bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden">
                         <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-1.5">
                                 <i class="fa-solid fa-building-columns text-emerald-200 text-xs"></i>
                                 <span id="home-shop-title" class="text-[11px] font-extrabold text-emerald-100 uppercase tracking-wider">Perekup Bank</span>
+                                <span id="home-tax-mode-pill" class="text-[9px] font-black px-1.5 py-0.5 rounded bg-black/30 text-emerald-100 border border-white/15">НПД</span>
                             </div>
-                            <span class="text-[11px] font-bold bg-black/35 text-amber-300 px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-amber-400/20">
-                                <i class="fa-solid fa-star text-[10px]"></i> <span id="home-rep">5.0</span>
-                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] font-bold bg-black/35 text-amber-300 px-2 py-0.5 rounded-full flex items-center gap-1 border border-amber-400/20">
+                                    <i class="fa-solid fa-star text-[10px]"></i> <span id="home-rep">5.0</span>
+                                </span>
+                                <span class="w-6 h-6 rounded-full bg-black/30 flex items-center justify-center text-white text-[10px]" title="Открыть Банк, Налоги и Займы">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </span>
+                            </div>
                         </div>
-                        <div id="home-balance" class="text-3xl font-black text-white tracking-tight mb-2">15 000 ₽</div>
-                        <div class="grid grid-cols-3 gap-2 pt-2.5 border-t border-white/15 text-center">
+                        <div class="flex items-baseline justify-between gap-2 mb-2">
+                            <div id="home-balance" class="text-3xl font-black text-white tracking-tight">15 000 ₽</div>
+                            <span id="home-loan-badge" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-500/30 border border-rose-300/40 text-rose-100">Долг: 0 ₽</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/15 text-center">
                             <div class="bg-black/20 rounded-xl py-1.5 px-1">
                                 <div class="text-[10px] text-emerald-100/75">На складе</div>
                                 <div id="home-inv-count" class="text-xs font-extrabold text-white">0 шт.</div>
@@ -323,6 +332,10 @@
                                 <div class="text-[10px] text-emerald-100/75">Чистый профит</div>
                                 <div id="home-profit" class="text-xs font-extrabold text-emerald-200">0 ₽</div>
                             </div>
+                        </div>
+                        <div class="mt-2 pt-1.5 border-t border-white/15 flex items-center justify-between text-[10px] text-emerald-100/90">
+                            <span id="home-tax-timer"><i class="fa-solid fa-shield-halved mr-1 text-emerald-200"></i>Налоговые каникулы (оплата в День 5)</span>
+                            <span id="home-tax-est" class="font-extrabold text-amber-200">0 ₽</span>
                         </div>
                     </div>
 
@@ -376,6 +389,14 @@
                                 <i class="fa-solid fa-circle-notch text-xl text-amber-300"></i>
                             </div>
                             <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Апгрейд</span>
+                        </button>
+
+                        <button onclick="openApp('bank')" class="app-icon-btn flex flex-col items-center gap-1 group">
+                            <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-500 via-green-600 to-slate-900 flex items-center justify-center shadow-lg shadow-emerald-950/60 border border-white/25 relative">
+                                <i class="fa-solid fa-building-columns text-xl text-white"></i>
+                                <span id="badge-bank" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-4 bg-rose-500 text-white text-[9px] font-black px-1 rounded-full flex items-center justify-center shadow border border-slate-950">!</span>
+                            </div>
+                            <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Банк</span>
                         </button>
 
                         <button onclick="openApp('profile')" class="app-icon-btn flex flex-col items-center gap-1 group">
@@ -1148,7 +1169,7 @@
                         </button>
                         <div>
                             <h2 class="text-base font-black text-white leading-none">Апгрейд Баланса</h2>
-                            <span class="text-[11px] text-purple-300/80">Шанс 25% / 50% / 75% • Выплата фиксированная x1.9</span>
+                            <span id="casino-subtitle-mult" class="text-[11px] text-purple-300/80">Шанс 25% (x3.8) / 50% (x1.9) / 75% (x1.36)</span>
                         </div>
                     </div>
                     <div class="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-black text-emerald-300" id="casino-balance-badge">
@@ -1192,7 +1213,7 @@
                                 50%
                             </div>
                             <div class="text-xs font-semibold text-slate-300 mt-0.5">
-                                выплата <span class="text-white font-extrabold">x1,9</span>
+                                выплата <span id="casino-mult-label" class="text-[#2be370] font-black">x1.9</span>
                             </div>
                             <div id="casino-result-badge" class="hidden mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider"></div>
                         </div>
@@ -1216,7 +1237,7 @@
                         <div class="bg-[#1b1236] border border-purple-500/25 rounded-2xl p-3.5 space-y-2.5">
                             <div class="flex items-center justify-between text-xs">
                                 <span class="text-slate-300 font-semibold">Сумма ставки:</span>
-                                <span class="text-slate-400">Выигрыш (1.9x): <strong id="casino-win-preview" class="text-[#2be370] font-black">1 900 ₽</strong></span>
+                                <span class="text-slate-400" id="casino-win-label">Выигрыш (x1.36): <strong id="casino-win-preview" class="text-[#2be370] font-black">1 900 ₽</strong></span>
                             </div>
 
                             <div class="relative">
@@ -1238,6 +1259,40 @@
                         </button>
                     </div>
                 </div>
+            </section>
+
+            <!-- ==================== 12. ПРИЛОЖЕНИЕ PEREKUP BANK (НАЛОГИ, МФО И КРЕДИТЫ) ==================== -->
+            <section id="screen-bank" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
+                <div class="shrink-0 px-3.5 py-2.5 bg-slate-900 border-b border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 shrink-0">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-base font-extrabold text-white leading-none">Perekup Bank</h2>
+                                <span class="text-[10px] text-slate-400">Налоговая, микрозаймы МФО и бизнес-кредиты</span>
+                            </div>
+                        </div>
+                        <div class="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-400/30 text-[11px] font-black text-emerald-300" id="bank-balance-badge">
+                            15 000 ₽
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                        <button id="bank-tab-taxes" onclick="setBankTab('taxes')" class="py-1.5 rounded-lg text-[11px] font-extrabold bg-emerald-500 text-slate-950 transition">
+                            🧾 Налоги
+                        </button>
+                        <button id="bank-tab-loans" onclick="setBankTab('loans')" class="py-1.5 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition">
+                            💳 Займы и Кредит
+                        </button>
+                        <button id="bank-tab-history" onclick="setBankTab('history')" class="py-1.5 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition">
+                            📜 Операции
+                        </button>
+                    </div>
+                </div>
+
+                <div id="bank-content" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3"></div>
             </section>
 
 
@@ -2357,7 +2412,80 @@
         function formatRub(num) {
             return Math.round(num).toLocaleString('ru-RU') + ' ₽';
         }
+        function getTaxBreakdown() {
+            const regime = state.taxRegime || 'npd';
+            const periodProf = Math.max(0, state.periodProfit || 0);
+            if (state.day < 5 && !(state.taxInvoice && state.taxInvoice.amount > 0)) {
+                return { regime, ratePct: regime === 'ip' ? 10 : 6, profitTax: 0, fixedFee: 0, lombardFee: 0, total: 0, isHoliday: true };
+            }
+            if (regime === 'ip') {
+                const profitTax = Math.round((periodProf * 0.10) / 50) * 50;
+                const fixedFee = 1200;
+                const lombardFee = state.lombardOwned ? 3500 : 0;
+                return { regime, ratePct: 10, profitTax, fixedFee, lombardFee, total: profitTax + fixedFee + lombardFee, isHoliday: false };
+            } else {
+                const profitTax = Math.round((periodProf * 0.06) / 50) * 50;
+                const fixedFee = 600;
+                const lombardFee = 0;
+                return { regime, ratePct: 6, profitTax, fixedFee, lombardFee, total: profitTax + fixedFee, isHoliday: false };
+            }
+        }
 
+        function calculateUpcomingTax() {
+            if (state.taxInvoice && state.taxInvoice.amount > 0) {
+                return state.taxInvoice.amount;
+            }
+            return getTaxBreakdown().total;
+        }
+
+        function addBankHistory(title, amount, type = 'expense') {
+            if (!Array.isArray(state.bankHistory)) state.bankHistory = [];
+            state.bankHistory.unshift({
+                id: 'tx_' + Date.now() + '_' + Math.floor(Math.random() * 999),
+                day: state.day || 1,
+                title,
+                amount: Math.round(amount),
+                type
+            });
+            if (state.bankHistory.length > 25) state.bankHistory.length = 25;
+        }
+
+        function getCreditRating() {
+            if (typeof state.creditRating !== 'number' || Number.isNaN(state.creditRating)) {
+                state.creditRating = 60;
+            }
+            return Math.max(0, Math.min(100, Math.round(state.creditRating)));
+        }
+
+        function adjustCreditRating(delta) {
+            const cur = getCreditRating();
+            state.creditRating = Math.max(0, Math.min(100, cur + delta));
+            return state.creditRating;
+        }
+
+        function getMaxMfoLimit() {
+            const cr = getCreditRating();
+            if (cr < 30) return 0;
+            if (cr < 40) return 5000;
+            const repBonus = Math.max(0, Math.round((state.reputation - 4.0) * 5000));
+            const crBonus = Math.max(0, Math.round((cr - 40) * 180));
+            const closedBonus = Math.min(6000, (state.closedLoansCount || 0) * 1500);
+            return Math.min(25000, Math.max(5000, 5000 + repBonus + crBonus + closedBonus));
+        }
+
+        function getActiveDebtTotal() {
+            let total = 0;
+            if (state.mfoLoan && state.mfoLoan.active) {
+                total += state.mfoLoan.principal + state.mfoLoan.accruedInterest;
+            }
+            if (state.bankCredit && state.bankCredit.active) {
+                total += state.bankCredit.remainingTotal;
+            }
+            if (state.taxInvoice && state.taxInvoice.amount > 0) {
+                total += state.taxInvoice.amount;
+            }
+            return total;
+        }
         function updateClock() {
             const now = new Date();
             const hh = String(now.getHours()).padStart(2, '0');
@@ -2770,6 +2898,19 @@
             reputation: 5.0,
             soldCount: 0,
             totalProfit: 0,
+            periodProfit: 0,
+            lastTaxPaid: 0,
+            taxRegime: 'npd',
+            taxInvoice: null,
+            taxFreezeActive: false,
+            mfoLoan: null,
+            bankCredit: null,
+            closedLoansCount: 0,
+            creditRating: 60,
+            mfoCooldownDays: 0,
+            creditCooldownDays: 0,
+            bankHistory: [],
+            bankTab: 'taxes',
             currentTrendIdx: 0,
             playerNickname: '',
             shopName: 'Perekup Bank',
@@ -3077,6 +3218,47 @@
             const shopTitle = document.getElementById('home-shop-title');
             if (shopTitle) shopTitle.textContent = state.shopName || 'Perekup Bank';
 
+            const taxModePill = document.getElementById('home-tax-mode-pill');
+            if (taxModePill) {
+                taxModePill.textContent = (state.taxRegime || 'npd') === 'ip' ? 'ИП 10%' : 'НПД 6%';
+            }
+            const loanBadge = document.getElementById('home-loan-badge');
+            if (loanBadge) {
+                const debt = getActiveDebtTotal();
+                if (debt > 0) {
+                    loanBadge.textContent = `К оплате: ${formatRub(debt)}`;
+                    loanBadge.classList.remove('hidden');
+                } else {
+                    loanBadge.classList.add('hidden');
+                }
+            }
+            const bankIconBadge = document.getElementById('badge-bank');
+            if (bankIconBadge) {
+                const hasUrgentBank = Boolean((state.taxInvoice && state.taxInvoice.amount > 0) || (state.mfoLoan && state.mfoLoan.active && state.mfoLoan.daysLeft <= 1));
+                if (hasUrgentBank) bankIconBadge.classList.remove('hidden');
+                else bankIconBadge.classList.add('hidden');
+            }
+            const taxTimerEl = document.getElementById('home-tax-timer');
+            const taxEstEl = document.getElementById('home-tax-est');
+            if (taxTimerEl && taxEstEl) {
+                if (state.taxInvoice && state.taxInvoice.amount > 0) {
+                    const overdue = state.taxInvoice.graceDaysLeft <= 0;
+                    taxTimerEl.innerHTML = overdue
+                        ? `<i class="fa-solid fa-triangle-exclamation mr-1 text-rose-300"></i>ПРОСРОЧКА НАЛОГА! Авито заморожено`
+                        : `<i class="fa-solid fa-file-invoice-dollar mr-1 text-amber-300"></i>Счёт ФНС (осталось ${state.taxInvoice.graceDaysLeft} дн.)`;
+                    taxEstEl.textContent = formatRub(state.taxInvoice.amount);
+                } else if (state.day < 5) {
+                    taxTimerEl.innerHTML = `<i class="fa-solid fa-shield-halved mr-1 text-emerald-200"></i>Налоговые каникулы (до 5 дня)`;
+                    taxEstEl.textContent = '0 ₽';
+                } else {
+                    const nextTaxDay = Math.ceil(state.day / 5) * 5;
+                    const daysLeft = nextTaxDay - state.day;
+                    const estAmount = calculateUpcomingTax();
+                    taxTimerEl.innerHTML = `<i class="fa-solid fa-file-invoice-dollar mr-1 text-amber-300"></i>Налог ${state.taxRegime === 'ip' ? 'ИП' : 'НПД'} (${daysLeft === 0 ? 'счёт сегодня' : `через ${daysLeft} дн.`})`;
+                    taxEstEl.textContent = `~${formatRub(estAmount)}`;
+                }
+            }
+
             const trend = getCurrentTrend();
             const trendBadge = document.getElementById('market-trend-badge');
             if (trendBadge) trendBadge.textContent = trend.badge;
@@ -3306,7 +3488,7 @@
                 clearInterval(lombardTimerInterval);
                 lombardTimerInterval = null;
             }
-            const screens = ['home', 'market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'profile'];
+            const screens = ['home', 'market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'bank', 'profile'];
             screens.forEach(s => {
                 const el = document.getElementById('screen-' + s);
                 if (el) {
@@ -3337,6 +3519,7 @@
             if (appName === 'upgrades') renderUpgradesApp();
             if (appName === 'collection') renderCollectionApp();
             if (appName === 'casino') initCasinoScreen();
+            if (appName === 'bank') renderBankApp();
             if (appName === 'profile') {
                 const shopInput = document.getElementById('settings-shop-input');
                 if (shopInput) shopInput.value = state.shopName || 'Perekup Bank';
@@ -3350,7 +3533,7 @@
         };
 
         window.goHome = function() {
-            const screens = ['market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'profile'];
+            const screens = ['market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'bank', 'profile'];
             const activeSub = screens.map(s => document.getElementById('screen-' + s)).find(el => el && !el.classList.contains('hidden'));
             if (!activeSub) {
                 openApp('home');
@@ -4659,6 +4842,11 @@
         };
 
         window.confirmPublishToAvito = function() {
+            if (state.taxFreezeActive) {
+                playSfx('error');
+                showToast('🚫 Аккаунт Авито заморожен из-за просрочки налогов! Оплатите счёт в Perekup Bank.', 'error');
+                return;
+            }
             const idx = state.inventory.findIndex(p => p.uid === state.publishingPhoneUid);
             if (idx === -1) return;
             const listPrice = parseInt(document.getElementById('pub-price-input').value, 10);
@@ -4823,6 +5011,7 @@
                 state.soldCount += 1;
                 state.salesToday = (state.salesToday || 0) + 1;
                 state.totalProfit += (finalSalePrice - item.totalCost);
+                state.periodProfit = (state.periodProfit || 0) + (finalSalePrice - item.totalCost);
                 state.reputation = Math.max(1.0, +(state.reputation - 0.4).toFixed(1));
                 playSfx('error');
                 showToast(`⚠️ Покупатель вскрыл скрытый дефект (${item.hiddenDefects[0].label})! Штраф -${formatRub(penalty)} и -0.4★`, 'error');
@@ -4844,6 +5033,8 @@
                 state.soldCount += 1;
                 state.salesToday = (state.salesToday || 0) + 1;
                 state.totalProfit += (finalSalePrice - item.totalCost);
+                state.periodProfit = (state.periodProfit || 0) + (finalSalePrice - item.totalCost);
+                addBankHistory(`Продажа ${item.modelName} (со штрафом)`, finalSalePrice, 'income');
                 state.reputation = Math.max(1.0, +(state.reputation - repDrop).toFixed(1));
                 playSfx('error');
                 const reasonText = issues.hasBroken ? 'скрытую поломку' : 'дешёвые копии запчастей';
@@ -4863,11 +5054,14 @@
             state.soldCount += 1;
             state.salesToday = (state.salesToday || 0) + 1;
             state.totalProfit += profit;
+            state.periodProfit = (state.periodProfit || 0) + profit;
+            addBankHistory(`Продажа ${item.modelName} на Авито`, finalSalePrice, 'income');
 
             state.reputation = Math.min(5.0, +(state.reputation + 0.1).toFixed(1));
+            adjustCreditRating(1);
 
             playSfx('cash');
-            showToast(`Продано покупателю ${off.buyerName} за ${formatRub(finalSalePrice)}! Прибыль: ${profit >= 0 ? '+' : ''}${formatRub(profit)} (+0.1★)`, profit >= 0 ? 'success' : 'info');
+            showToast(`Продано покупателю ${off.buyerName} за ${formatRub(finalSalePrice)}! Прибыль: ${profit >= 0 ? '+' : ''}${formatRub(profit)} (+0.1★, +1 КР)`, profit >= 0 ? 'success' : 'info');
 
             if (state.salesToday >= 2) {
                 setTimeout(() => {
@@ -6106,6 +6300,7 @@
             state.money += cashTotal;
             const netDelta = cashTotal - (phone.buyPrice + (phone.partsSpent || 0));
             state.totalProfit += netDelta;
+            state.periodProfit = (state.periodProfit || 0) + netDelta;
 
             state.activeWorkshopPhoneId = state.inventory.length > 0 ? state.inventory[0].uid : null;
             playSfx('cash');
@@ -7141,11 +7336,17 @@
         }
 
         window.buyLombardFranchise = function() {
+            if ((state.taxRegime || 'npd') !== 'ip') {
+                playSfx('error');
+                showToast('Для открытия Ломбарда нужен статус ИП! Оформите ИП в Perekup Bank.', 'error');
+                return;
+            }
             if (state.money < 85000) {
                 showToast('Не хватает 85 000 ₽ для открытия Ломбарда!', 'error');
                 return;
             }
             state.money -= 85000;
+            addBankHistory('Открытие точки Ломбарда', 85000, 'expense');
             state.lombardOwned = true;
             state.nextLombardDay = state.day + 3;
             generateLombardClient();
@@ -7537,6 +7738,7 @@
 
             const resBadge = document.getElementById('casino-result-badge');
             if (resBadge) resBadge.classList.add('hidden');
+            updateCasinoCalc();
         };
 
         window.adjustCasinoBet = function(mode) {
@@ -7553,19 +7755,32 @@
             updateCasinoCalc();
         };
 
+        function getCasinoMultiplier() {
+            if (casinoChance === 25) return 3.8;
+            if (casinoChance === 50) return 1.9;
+            if (casinoChance === 75) return 1.36;
+            return +(0.95 / (casinoChance / 100)).toFixed(2);
+        }
+
         window.updateCasinoCalc = function() {
             const input = document.getElementById('casino-bet-input');
             const winPrev = document.getElementById('casino-win-preview');
             const spinBtn = document.getElementById('casino-spin-btn');
             const balBadge = document.getElementById('casino-balance-badge');
+            const multLbl = document.getElementById('casino-mult-label');
             if (balBadge) balBadge.textContent = formatRub(state.money);
 
+            const mult = getCasinoMultiplier();
+            if (multLbl) multLbl.textContent = `x${mult}`;
+            const winLbl = document.getElementById('casino-win-label');
+            if (winLbl) winLbl.textContent = `Выигрыш (${casinoChance}%, x${mult}):`;
+
             const bet = Math.max(0, parseInt(input?.value, 10) || 0);
-            const payout = Math.round(bet * 1.9);
+            const payout = Math.round(bet * mult);
             if (winPrev) winPrev.textContent = formatRub(payout);
             if (spinBtn && !casinoSpinning) {
                 spinBtn.textContent = bet > 0
-                    ? `Апгрейд за ${formatRub(bet)} → ${formatRub(payout)}`
+                    ? `Апгрейд за ${formatRub(bet)} → ${formatRub(payout)} (x${mult})`
                     : 'Введите сумму ставки';
             }
         };
@@ -7640,7 +7855,8 @@
                 }
 
                 if (won) {
-                    const payout = Math.round(bet * 1.9);
+                    const mult = getCasinoMultiplier();
+                    const payout = Math.round(bet * mult);
                     state.money += payout;
                     playSfx('cash');
                     if (glow) glow.className = 'absolute inset-4 rounded-full bg-emerald-500/35 blur-2xl transition-colors duration-300';
@@ -7649,7 +7865,7 @@
                         resBadge.className = 'mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#2be370]/20 text-[#2be370] border border-[#2be370]/40';
                         resBadge.classList.remove('hidden');
                     }
-                    showToast(`🎉 Апгрейд сработал! Выигрыш ${formatRub(payout)} (x1.9)!`, 'success');
+                    showToast(`🎉 Апгрейд сработал! Выигрыш ${formatRub(payout)} (x${mult})!`, 'success');
                 } else {
                     playSfx('error');
                     if (glow) glow.className = 'absolute inset-4 rounded-full bg-rose-500/30 blur-2xl transition-colors duration-300';
@@ -7703,8 +7919,660 @@
             saveToFirestore(false);
         };
 
+        // ==================== 12. PEREKUP BANK: НАЛОГИ, МФО И КРЕДИТЫ ====================
+        window.setBankTab = function(tab) {
+            state.bankTab = tab;
+            ['taxes', 'loans', 'history'].forEach(t => {
+                const btn = document.getElementById('bank-tab-' + t);
+                if (!btn) return;
+                btn.className = t === tab
+                    ? 'py-1.5 rounded-lg text-[11px] font-extrabold bg-emerald-500 text-slate-950 transition'
+                    : 'py-1.5 rounded-lg text-[11px] font-extrabold text-slate-400 hover:text-white transition';
+            });
+            playSfx('tap');
+            renderBankApp();
+        };
+
+        window.renderBankApp = function() {
+            const container = document.getElementById('bank-content');
+            const balBadge = document.getElementById('bank-balance-badge');
+            if (balBadge) balBadge.textContent = formatRub(state.money);
+            if (!container) return;
+
+            const tab = state.bankTab || 'taxes';
+
+            if (tab === 'taxes') {
+                const regime = state.taxRegime || 'npd';
+                const br = getTaxBreakdown();
+                const inv = state.taxInvoice;
+                const cr = getCreditRating();
+                const hasOverdueDebt = Boolean((state.mfoLoan && state.mfoLoan.active && state.mfoLoan.daysLeft <= 0) || state.taxFreezeActive);
+                const canSwitchToIp = ((state.totalProfit || 0) >= 50000 || state.day >= 5) && cr >= 30 && !hasOverdueDebt;
+                const mustUseIp = (state.totalProfit || 0) >= 150000 || state.lombardOwned;
+
+                let invoiceCardHtml = '';
+                if (inv && inv.amount > 0) {
+                    const isOverdue = inv.graceDaysLeft <= 0;
+                    invoiceCardHtml = `
+                        <div class="bg-slate-900 border-2 ${isOverdue ? 'border-rose-500/70' : 'border-amber-500/60'} rounded-2xl p-3.5 space-y-2.5 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black ${isOverdue ? 'text-rose-300' : 'text-amber-300'}">
+                                    ${isOverdue ? '🚨 Просроченный налоговый счёт!' : '🧾 Выставлен счёт от ФНС'}
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isOverdue ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}">
+                                    ${isOverdue ? 'Авито заморожено (+10%/день)' : `Льготный срок: ${inv.graceDaysLeft} дн.`}
+                                </span>
+                            </div>
+                            <div class="flex items-baseline justify-between">
+                                <span class="text-[11px] text-slate-400">К оплате по квитанции:</span>
+                                <span class="text-xl font-black text-white">${formatRub(inv.amount)}</span>
+                            </div>
+                            <button onclick="payTaxInvoice()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs transition">
+                                Оплатить налог (${formatRub(inv.amount)})
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const nextTaxDay = Math.ceil(Math.max(5, state.day) / 5) * 5;
+                    invoiceCardHtml = `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-extrabold text-white">Текущий налоговый период</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300">
+                                    ${state.day < 5 ? 'Каникулы до Дня 5' : `Счёт в День ${nextTaxDay}`}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <div>
+                                    <div class="text-slate-400">Прибыль за период:</div>
+                                    <div class="font-extrabold text-emerald-300">${formatRub(Math.max(0, state.periodProfit || 0))}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-slate-400">Предварительный налог:</div>
+                                    <div class="font-extrabold text-amber-300">${state.day < 5 ? '0 ₽ (Каникулы)' : formatRub(br.total)}</div>
+                                </div>
+                            </div>
+                            ${state.day >= 5 ? `
+                                <div class="text-[10px] text-slate-400 flex justify-between px-1">
+                                    <span>Налог ${br.ratePct}%: ${formatRub(br.profitTax)}</span>
+                                    <span>Связь: ${formatRub(br.fixedFee)}</span>
+                                    ${br.lombardFee > 0 ? `<span>Ломбард: ${formatRub(br.lombardFee)}</span>` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = `
+                    ${invoiceCardHtml}
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                        <div class="text-xs font-extrabold text-white flex items-center justify-between">
+                            <span>Налоговый статус перекупа</span>
+                            <span class="text-[10px] text-slate-400">Всего профит: ${formatRub(state.totalProfit || 0)}</span>
+                        </div>
+
+                        <div class="p-3 rounded-xl border ${regime === 'npd' ? 'bg-emerald-950/35 border-emerald-500/50' : 'bg-slate-950 border-slate-800'} space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">Самозанятый (НПД 6%)</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${regime === 'npd' ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">
+                                    ${regime === 'npd' ? 'Активен' : (mustUseIp ? 'Лимит 150к превышен' : 'Доступен')}
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 leading-snug">
+                                • 6% от чистой прибыли за 5 дней + 600 ₽ за связь/симки.<br>
+                                • Лимит общего профита: до 150 000 ₽. Нельзя открыть Ломбард и брать бизнес-кредит.
+                            </p>
+                            ${regime !== 'npd' && !mustUseIp ? `
+                                <button onclick="switchTaxRegime('npd')" class="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px]">
+                                    Перейти на Самозанятого
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="p-3 rounded-xl border ${regime === 'ip' ? 'bg-sky-950/35 border-sky-500/50' : 'bg-slate-950 border-slate-800'} space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">ИП (УСН 10% + Взносы)</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded ${regime === 'ip' ? 'bg-sky-400 text-slate-950' : 'bg-slate-800 text-slate-400'}">
+                                    ${regime === 'ip' ? 'Активен' : (cr < 30 ? 'Блок: КР < 30' : (canSwitchToIp ? 'Можно открыть' : 'От 50 000 ₽ профита'))}
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 leading-snug">
+                                • 10% от прибыли + 1 200 ₽ взносы (+3 500 ₽ при наличии Ломбарда).<br>
+                                • Открывает покупку <strong>Ломбарда</strong> и <strong>Бизнес-кредит до 200 000 ₽</strong> под 1.5%/день.
+                            </p>
+                            ${regime !== 'ip' ? `
+                                <button onclick="switchTaxRegime('ip')" ${!canSwitchToIp ? 'disabled' : ''} class="w-full py-2 rounded-lg bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-slate-950 font-black text-[11px] transition">
+                                    Оформить ИП (Бесплатно)
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            if (tab === 'loans') {
+                const cr = getCreditRating();
+                const isCrBlocked = cr < 30;
+                const maxMfo = getMaxMfoLimit();
+                const mfo = state.mfoLoan;
+                const cred = state.bankCredit;
+                const mfoCd = Math.max(0, state.mfoCooldownDays || 0);
+                const credCd = Math.max(0, state.creditCooldownDays || 0);
+                const isIp = (state.taxRegime || 'npd') === 'ip';
+                const canTakeCredit = isIp && (state.totalProfit || 0) >= 80000 && !isCrBlocked && credCd === 0;
+
+                const crColor = cr >= 60 ? 'text-emerald-400' : cr >= 30 ? 'text-amber-300' : 'text-rose-400';
+                const crBarColor = cr >= 60 ? 'bg-emerald-500' : cr >= 30 ? 'bg-amber-400' : 'bg-rose-500';
+                const crStatusText = isCrBlocked
+                    ? '🚫 Чёрный список (КР < 30): выдача новых займов и открытие ИП заблокированы!'
+                    : cr < 40
+                        ? '⚠️ Низкий рейтинг: лимит МФО урезан до 5 000 ₽'
+                        : '✓ Хорошая кредитная история';
+
+                const crBannerHtml = `
+                    <div class="bg-slate-900 border ${isCrBlocked ? 'border-rose-500/60' : 'border-slate-800'} rounded-2xl p-3.5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-gauge-high ${crColor}"></i> Кредитный рейтинг (КР)
+                            </span>
+                            <span class="text-sm font-black ${crColor}">${cr} / 100</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
+                            <div class="h-full ${crBarColor} transition-all duration-300" style="width: ${cr}%"></div>
+                        </div>
+                        <div class="text-[10px] ${isCrBlocked ? 'text-rose-300 font-bold' : 'text-slate-300'}">${crStatusText}</div>
+                        <div class="text-[9px] text-slate-400 leading-relaxed pt-1 border-t border-slate-800/80">
+                            Восстановление: <strong>+4 КР</strong> каждые 2 дня без просрочек • <strong>+5 КР</strong> за налог в срок • <strong>+1 КР</strong> за чистую продажу на Авито • <strong>+10 КР</strong> за закрытие займа в срок.
+                        </div>
+                    </div>
+                `;
+
+                let mfoHtml = '';
+                if (mfo && mfo.active) {
+                    const totalDue = mfo.principal + mfo.accruedInterest;
+                    const overdue = mfo.daysLeft <= 0;
+                    mfoHtml = `
+                        <div class="bg-slate-900 border-2 ${overdue ? 'border-rose-500/70' : 'border-amber-500/50'} rounded-2xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">⚡ Активный микрозайм МФО</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${overdue ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'}">
+                                    ${overdue ? `ПРОСРОЧКА! Ставка 15%/день` : `Осталось ${mfo.daysLeft} дн. (8%/день)`}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center text-[11px]">
+                                <div>
+                                    <div class="text-slate-400 text-[9px]">Тело займа</div>
+                                    <div class="font-bold text-white">${formatRub(mfo.principal)}</div>
+                                </div>
+                                <div>
+                                    <div class="text-slate-400 text-[9px]">Проценты</div>
+                                    <div class="font-bold text-amber-300">+${formatRub(mfo.accruedInterest)}</div>
+                                </div>
+                                <div>
+                                    <div class="text-slate-400 text-[9px]">К возврату</div>
+                                    <div class="font-black text-rose-300">${formatRub(totalDue)}</div>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-slate-400">
+                                Гаси досрочно в любой день — платишь проценты только за прошедшие дни. После закрытия следующий займ откроется через 4 дн. (7 дн. при просрочке).
+                            </p>
+                            <button onclick="repayMfoLoan()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs transition">
+                                Погасить займ полностью (${formatRub(totalDue)})
+                            </button>
+                        </div>
+                    `;
+                } else if (isCrBlocked) {
+                    mfoHtml = `
+                        <div class="bg-slate-900 border border-rose-500/40 rounded-2xl p-3.5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">⚡ Микрозайм «БыстроДеньги»</span>
+                                <span class="text-[10px] font-bold text-rose-400">Отказано (КР ${cr}/100)</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-snug">
+                                МФО отказывает в выдаче, пока кредитный рейтинг ниже 30 баллов. Закройте долги по налогам и поторгуйте на Авито, чтобы поднять рейтинг.
+                            </p>
+                            <button disabled class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-500 font-black text-xs cursor-not-allowed">
+                                Недоступно при КР ниже 30
+                            </button>
+                        </div>
+                    `;
+                } else if (mfoCd > 0) {
+                    mfoHtml = `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">⚡ Микрозайм «БыстроДеньги»</span>
+                                <span class="text-[10px] font-bold text-amber-300">Пауза: ${mfoCd} дн.</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 leading-snug">
+                                Чтобы не сидеть на постоянных займах, МФО выдерживает паузу между договорами (4 дня после вовремя закрытого займа и 7 дней после просрочки).
+                            </p>
+                            <button disabled class="w-full py-2.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs cursor-not-allowed">
+                                Доступно через ${mfoCd} дн.
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    const minMfo = 3000;
+                    const safeMax = Math.max(minMfo, maxMfo);
+                    const defaultAmt = Math.min(safeMax, 10000);
+                    mfoHtml = `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">⚡ Микрозайм «БыстроДеньги»</span>
+                                <span class="text-[10px] font-bold text-emerald-300">Лимит: до ${formatRub(safeMax)}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 leading-snug">
+                                Выручает, когда на Авито висит выгодный телефон, а налички не хватает. Ставка <strong>8% в день</strong> на <strong>4 дня</strong>.
+                            </p>
+                            <div class="space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400">Сумма займа:</span>
+                                    <span id="mfo-amount-label" class="font-black text-white">${formatRub(defaultAmt)}</span>
+                                </div>
+                                <input id="mfo-amount-slider" oninput="updateMfoSliderPreview()" type="range" min="${minMfo}" max="${safeMax}" step="1000" value="${defaultAmt}" class="w-full accent-amber-500 cursor-pointer">
+                                <div class="flex justify-between text-[10px] text-slate-400">
+                                    <span>Плата за 1 день: <strong id="mfo-daily-fee" class="text-amber-300">${formatRub(Math.round(defaultAmt * 0.08))}</strong></span>
+                                    <span>Макс. за 4 дня: <strong id="mfo-max-return" class="text-slate-200">${formatRub(Math.round(defaultAmt * 1.32))}</strong></span>
+                                </div>
+                            </div>
+                            <button onclick="takeMfoLoan()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs transition">
+                                Получить деньги на карту мгновенно
+                            </button>
+                        </div>
+                    `;
+                }
+
+                let creditHtml = '';
+                if (cred && cred.active) {
+                    creditHtml = `
+                        <div class="bg-slate-900 border border-sky-500/50 rounded-2xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">🏦 Бизнес-кредит Perekup Bank</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300">Осталось ${cred.daysLeft} дн.</span>
+                            </div>
+                            <div class="flex justify-between text-xs bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <span class="text-slate-400">Ежедневный платёж: <strong class="text-white">${formatRub(cred.dailyPayment)}</strong></span>
+                                <span class="text-slate-400">Остаток долга: <strong class="text-sky-300">${formatRub(cred.remainingTotal)}</strong></span>
+                            </div>
+                            <button onclick="repayBankCredit()" class="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black text-xs transition">
+                                Закрыть кредит досрочно (${formatRub(cred.remainingTotal)})
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    let statusBadgeText = 'Одобрено';
+                    let btnLabel60 = 'Взять 60 000 ₽';
+                    let btnLabel120 = 'Взять 120 000 ₽';
+                    if (isCrBlocked) {
+                        statusBadgeText = `Отказ: КР ${cr}/100 (< 30)`;
+                    } else if (credCd > 0) {
+                        statusBadgeText = `Кулдаун: ${credCd} дн.`;
+                        btnLabel60 = `Через ${credCd} дн.`;
+                        btnLabel120 = `Через ${credCd} дн.`;
+                    } else if (!isIp || (state.totalProfit || 0) < 80000) {
+                        statusBadgeText = 'Нужно ИП и 80 000 ₽ профита';
+                    }
+
+                    creditHtml = `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-black text-white">🏦 Кредит для ИП (до 120 000 ₽)</span>
+                                <span class="text-[10px] font-bold ${canTakeCredit ? 'text-sky-300' : 'text-slate-400'}">
+                                    ${statusBadgeText}
+                                </span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 leading-snug">
+                                Крупный займ на открытие Ломбарда или покупку паяльной станции. Ставка <strong>2.5% в день</strong> на 10 дней (переплата 25%, пауза после закрытия — 10 дней).
+                            </p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="takeBankCredit(60000)" ${!canTakeCredit ? 'disabled' : ''} class="py-2.5 rounded-xl bg-sky-600/25 hover:bg-sky-600/40 disabled:opacity-40 border border-sky-500/40 text-sky-200 font-extrabold text-xs transition">
+                                    ${btnLabel60}
+                                </button>
+                                <button onclick="takeBankCredit(120000)" ${!canTakeCredit ? 'disabled' : ''} class="py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 disabled:opacity-40 text-slate-950 font-black text-xs transition">
+                                    ${btnLabel120}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = crBannerHtml + mfoHtml + creditHtml;
+                return;
+            }
+
+            // Tab: history
+            const hist = state.bankHistory || [];
+            if (hist.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">История банковских операций пока пуста.</div>`;
+                return;
+            }
+            container.innerHTML = `<div class="space-y-2">` + hist.map(item => `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="text-xs font-bold text-white truncate">${item.title}</div>
+                        <div class="text-[10px] text-slate-400">День ${item.day}</div>
+                    </div>
+                    <span class="text-xs font-black shrink-0 ${item.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}">
+                        ${item.type === 'income' ? '+' : '-'}${formatRub(item.amount)}
+                    </span>
+                </div>
+            `).join('') + `</div>`;
+        };
+
+        window.switchTaxRegime = function(newRegime) {
+            if (newRegime === 'ip') {
+                if (getCreditRating() < 30) {
+                    playSfx('error');
+                    return showToast('Отказ в регистрации ИП: кредитный рейтинг ниже 30 баллов!', 'error');
+                }
+                if ((state.mfoLoan && state.mfoLoan.active && state.mfoLoan.daysLeft <= 0) || state.taxFreezeActive) {
+                    playSfx('error');
+                    return showToast('Сначала закройте просроченные долги и налоги!', 'error');
+                }
+                if ((state.totalProfit || 0) < 50000 && state.day < 5) {
+                    return showToast('Для открытия ИП нужно накопить 50 000 ₽ чистого профита или дожить до 5 дня!', 'error');
+                }
+                state.taxRegime = 'ip';
+                playSfx('success');
+                showToast('Статус ИП оформлен! Доступны Ломбард и бизнес-кредиты.', 'success');
+            } else {
+                if ((state.totalProfit || 0) >= 150000 || state.lombardOwned) {
+                    return showToast('Нельзя вернуться на НПД при профите от 150 000 ₽ или наличии Ломбарда!', 'error');
+                }
+                state.taxRegime = 'npd';
+                playSfx('tap');
+                showToast('Вы перешли на режим Самозанятого (НПД 6%).', 'info');
+            }
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+        };
+
+        window.payTaxInvoice = function() {
+            const inv = state.taxInvoice;
+            if (!inv || inv.amount <= 0) return;
+            if (state.money < inv.amount) {
+                playSfx('error');
+                return showToast(`Не хватает ${formatRub(inv.amount)} для оплаты налога!`, 'error');
+            }
+            const paid = inv.amount;
+            const wasOverdue = state.taxFreezeActive || inv.graceDaysLeft < 0;
+            state.money -= paid;
+            state.lastTaxPaid = paid;
+            state.taxInvoice = null;
+            state.taxFreezeActive = false;
+            if (!wasOverdue) {
+                adjustCreditRating(5);
+            }
+            addBankHistory(`Оплата налога ФНС (${state.taxRegime === 'ip' ? 'ИП' : 'НПД'})`, paid, 'expense');
+            playSfx('cash');
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+            showToast(wasOverdue
+                ? `✅ Налог ${formatRub(paid)} погашен! Аккаунт Авито разморожен.`
+                : `✅ Налог ${formatRub(paid)} оплачен вовремя! (+5 к кредитному рейтингу)`, 'success');
+        };
+
+        window.updateMfoSliderPreview = function() {
+            const slider = document.getElementById('mfo-amount-slider');
+            if (!slider) return;
+            const amt = parseInt(slider.value, 10) || 3000;
+            const lbl = document.getElementById('mfo-amount-label');
+            const fee = document.getElementById('mfo-daily-fee');
+            const ret = document.getElementById('mfo-max-return');
+            if (lbl) lbl.textContent = formatRub(amt);
+            if (fee) fee.textContent = formatRub(Math.round(amt * 0.08));
+            if (ret) ret.textContent = formatRub(Math.round(amt * 1.32));
+        };
+
+        window.takeMfoLoan = function() {
+            if (state.mfoLoan && state.mfoLoan.active) {
+                return showToast('Сначала погасите текущий микрозайм!', 'error');
+            }
+            if (getCreditRating() < 30) {
+                playSfx('error');
+                return showToast('Отказано: кредитный рейтинг ниже 30 баллов!', 'error');
+            }
+            if ((state.mfoCooldownDays || 0) > 0) {
+                playSfx('error');
+                return showToast(`Новый микрозайм будет доступен через ${state.mfoCooldownDays} дн.!`, 'error');
+            }
+            const slider = document.getElementById('mfo-amount-slider');
+            const maxMfo = Math.max(3000, getMaxMfoLimit());
+            const amount = Math.min(maxMfo, Math.max(3000, parseInt(slider ? slider.value : '10000', 10) || 10000));
+            state.money += amount;
+            state.mfoLoan = {
+                active: true,
+                principal: amount,
+                accruedInterest: 0,
+                daysLeft: 4,
+                overdueDays: 0,
+                penalizedCr: false
+            };
+            addBankHistory('Получен микрозайм МФО', amount, 'income');
+            playSfx('cash');
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+            showToast(`💸 Займ ${formatRub(amount)} зачислен! Срок возврата — 4 дня (8%/день).`, 'success');
+        };
+
+        window.repayMfoLoan = function() {
+            const mfo = state.mfoLoan;
+            if (!mfo || !mfo.active) return;
+            const totalDue = mfo.principal + mfo.accruedInterest;
+            if (state.money < totalDue) {
+                playSfx('error');
+                return showToast(`Не хватает ${formatRub(totalDue)} для закрытия займа!`, 'error');
+            }
+            const hadOverdue = (mfo.overdueDays || 0) > 0;
+            state.money -= totalDue;
+            state.mfoLoan = null;
+            state.closedLoansCount = (state.closedLoansCount || 0) + 1;
+            state.mfoCooldownDays = hadOverdue ? 7 : 4;
+            if (!hadOverdue) {
+                adjustCreditRating(10);
+            }
+            addBankHistory('Погашение микрозайма МФО', totalDue, 'expense');
+            playSfx('success');
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+            showToast(hadOverdue
+                ? `✅ Займ закрыт с просрочкой (-${formatRub(totalDue)}). Пауза в МФО: 7 дн.`
+                : `✅ Микрозайм погашен вовремя (-${formatRub(totalDue)})! +10 КР, пауза: 4 дн.`, 'success');
+        };
+
+        window.takeBankCredit = function(amount) {
+            if (getCreditRating() < 30) {
+                playSfx('error');
+                return showToast('Банк отказал: кредитный рейтинг ниже 30 баллов!', 'error');
+            }
+            if ((state.creditCooldownDays || 0) > 0) {
+                playSfx('error');
+                return showToast(`Новый бизнес-кредит будет доступен через ${state.creditCooldownDays} дн.!`, 'error');
+            }
+            if ((state.taxRegime || 'npd') !== 'ip' || (state.totalProfit || 0) < 80000) {
+                return showToast('Бизнес-кредит доступен только для ИП с профитом от 80 000 ₽!', 'error');
+            }
+            if (state.bankCredit && state.bankCredit.active) {
+                return showToast('У вас уже есть активный бизнес-кредит!', 'error');
+            }
+            const totalWithInterest = Math.round(amount * 1.25);
+            const dailyPayment = Math.round(totalWithInterest / 10);
+            state.money += amount;
+            state.bankCredit = {
+                active: true,
+                principal: amount,
+                remainingTotal: totalWithInterest,
+                dailyPayment,
+                daysLeft: 10,
+                hadMiss: false
+            };
+            addBankHistory('Бизнес-кредит Perekup Bank', amount, 'income');
+            playSfx('cash');
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+            showToast(`🏦 Кредит ${formatRub(amount)} одобрен! Списание по ${formatRub(dailyPayment)}/день.`, 'success');
+        };
+
+        window.repayBankCredit = function() {
+            const cred = state.bankCredit;
+            if (!cred || !cred.active) return;
+            if (state.money < cred.remainingTotal) {
+                playSfx('error');
+                return showToast(`Не хватает ${formatRub(cred.remainingTotal)} для досрочного закрытия!`, 'error');
+            }
+            const paid = cred.remainingTotal;
+            const hadMiss = Boolean(cred.hadMiss);
+            state.money -= paid;
+            state.bankCredit = null;
+            state.creditCooldownDays = 10;
+            if (!hadMiss) {
+                adjustCreditRating(10);
+            }
+            addBankHistory('Закрытие бизнес-кредита', paid, 'expense');
+            playSfx('success');
+            updateUI();
+            renderBankApp();
+            saveToFirestore(false);
+            showToast(hadMiss
+                ? `✅ Бизнес-кредит закрыт (-${formatRub(paid)}). Следующий доступен через 10 дн.`
+                : `✅ Бизнес-кредит закрыт без просрочек (-${formatRub(paid)})! +10 КР, пауза: 10 дн.`, 'success');
+        };
+
         window.nextDay = function(autoTriggered = false) {
+            let bankNotices = [];
+            let hadOverdueToday = false;
+
+            // Уменьшаем кулдауны на новые займы и кредиты
+            if ((state.mfoCooldownDays || 0) > 0) {
+                state.mfoCooldownDays = Math.max(0, state.mfoCooldownDays - 1);
+            }
+            if ((state.creditCooldownDays || 0) > 0) {
+                state.creditCooldownDays = Math.max(0, state.creditCooldownDays - 1);
+            }
+
+            // 1. Обработка существующего счёта ФНС или выставление нового каждые 5 дней
+            if (state.taxInvoice && state.taxInvoice.amount > 0) {
+                state.taxInvoice.graceDaysLeft -= 1;
+                if (state.taxInvoice.graceDaysLeft < 0) {
+                    hadOverdueToday = true;
+                    const penalty = Math.max(200, Math.round(state.taxInvoice.amount * 0.10 / 50) * 50);
+                    state.taxInvoice.amount += penalty;
+                    if (!state.taxFreezeActive) {
+                        adjustCreditRating(-25);
+                    }
+                    state.taxFreezeActive = true;
+                    bankNotices.push(`🚨 Просрочка налога! Авито заморожено (-25 КР, +${formatRub(penalty)} пеня)`);
+                } else {
+                    bankNotices.push(`🧾 Оплатите налог ${formatRub(state.taxInvoice.amount)} (ост. ${state.taxInvoice.graceDaysLeft} дн.)`);
+                }
+            }
+
+            if (state.day >= 5 && state.day % 5 === 0) {
+                // Принудительный перевод на ИП при профите >= 150 000 ₽
+                if ((state.taxRegime || 'npd') === 'npd' && (state.totalProfit || 0) >= 150000) {
+                    state.taxRegime = 'ip';
+                    bankNotices.push('📊 Лимит НПД 150к превышен — вы переведены на ИП');
+                }
+                const br = getTaxBreakdown();
+                if (br.total > 0) {
+                    if (state.taxInvoice && state.taxInvoice.amount > 0) {
+                        state.taxInvoice.amount += br.total;
+                    } else {
+                        state.taxInvoice = { amount: br.total, graceDaysLeft: 2 };
+                    }
+                    state.periodProfit = 0;
+                    bankNotices.push(`🧾 Новый счёт ФНС: ${formatRub(br.total)} (2 дня на оплату)`);
+                }
+            }
+
+            // 2. Ежедневное начисление по микрозайму МФО
+            if (state.mfoLoan && state.mfoLoan.active) {
+                const mfo = state.mfoLoan;
+                if (mfo.daysLeft > 0) {
+                    const dailyFee = Math.round(mfo.principal * 0.08);
+                    mfo.accruedInterest += dailyFee;
+                    mfo.daysLeft -= 1;
+                    if (mfo.daysLeft === 0) {
+                        bankNotices.push('⚠️ Сегодня последний день возврата микрозайма МФО!');
+                    }
+                } else {
+                    hadOverdueToday = true;
+                    mfo.overdueDays = (mfo.overdueDays || 0) + 1;
+                    const penaltyFee = Math.round(mfo.principal * 0.15);
+                    mfo.accruedInterest += penaltyFee;
+                    if (!mfo.penalizedCr) {
+                        mfo.penalizedCr = true;
+                        adjustCreditRating(-25);
+                    }
+                    if (mfo.overdueDays >= 2 && state.inventory.length > 0) {
+                        // Коллекторы изымают самый дешёвый телефон со склада в счёт погашения
+                        state.inventory.sort((a, b) => (a.idealPrice || 0) - (b.idealPrice || 0));
+                        const seized = state.inventory.shift();
+                        const coverVal = Math.round((seized.idealPrice || 5000) * 0.75);
+                        const totalDebt = mfo.principal + mfo.accruedInterest;
+                        if (coverVal >= totalDebt) {
+                            state.mfoLoan = null;
+                            state.mfoCooldownDays = 7;
+                            addBankHistory(`Изъятие ${seized.modelName} коллекторами (долг закрыт)`, totalDebt, 'expense');
+                            bankNotices.push(`🚨 Коллекторы забрали ${seized.modelName} и закрыли ваш долг!`);
+                        } else {
+                            mfo.accruedInterest = Math.max(0, mfo.accruedInterest - coverVal);
+                            if (mfo.accruedInterest === 0) {
+                                mfo.principal = Math.max(1000, mfo.principal - Math.max(0, coverVal - mfo.accruedInterest));
+                            }
+                            mfo.overdueDays = 0;
+                            addBankHistory(`Изъятие ${seized.modelName} в счёт долга МФО`, coverVal, 'expense');
+                            bankNotices.push(`🚨 Коллекторы изъяли ${seized.modelName} (-${formatRub(coverVal)} долга)!`);
+                        }
+                        state.reputation = Math.max(1.0, +(state.reputation - 0.3).toFixed(1));
+                    } else {
+                        bankNotices.push(`🚨 Просрочка МФО! -25 КР и +${formatRub(penaltyFee)} (15%/день)`);
+                    }
+                }
+            }
+
+            // 3. Ежедневный платёж по бизнес-кредиту ИП
+            if (state.bankCredit && state.bankCredit.active) {
+                const cred = state.bankCredit;
+                const pay = Math.min(cred.remainingTotal, cred.dailyPayment);
+                if (state.money >= pay) {
+                    state.money -= pay;
+                    cred.remainingTotal -= pay;
+                    cred.daysLeft -= 1;
+                    addBankHistory('Платёж по бизнес-кредиту', pay, 'expense');
+                    if (cred.remainingTotal <= 0 || cred.daysLeft <= 0) {
+                        const hadMiss = Boolean(cred.hadMiss);
+                        state.bankCredit = null;
+                        state.creditCooldownDays = 10;
+                        if (!hadMiss) adjustCreditRating(10);
+                        bankNotices.push(hadMiss
+                            ? '🎉 Бизнес-кредит выплачен! Новый доступен через 10 дн.'
+                            : '🎉 Бизнес-кредит выплачен в срок! +10 КР, пауза 10 дн.');
+                    }
+                } else {
+                    hadOverdueToday = true;
+                    cred.remainingTotal += Math.round(pay * 0.15);
+                    if (!cred.hadMiss) {
+                        cred.hadMiss = true;
+                        adjustCreditRating(-25);
+                    }
+                    bankNotices.push('⚠️ Пропуск платежа по кредиту (-25 КР, +15% пеня)');
+                }
+            }
+
             state.day += 1;
+
+            // 4. Восстановление кредитного рейтинга (+4 балла) каждые 2 дня без просрочек
+            if (!hadOverdueToday && state.day % 2 === 1 && getCreditRating() < 100) {
+                adjustCreditRating(4);
+            }
             state.salesToday = 0;
             if (state.day % 2 === 1) {
                 state.currentTrendIdx = ((state.currentTrendIdx || 0) + 1) % MARKET_TRENDS.length;
@@ -7723,10 +8591,11 @@
             saveToFirestore(false);
             const activeOffers = (state.myListings || []).reduce((s, i) => s + (i.offers ? i.offers.length : 0), 0);
             const lombNotice = state.lombardOwned && state.lombardClient ? ' В Ломбард зашёл срочный клиент!' : '';
+            const extraBankStr = bankNotices.length > 0 ? ' • ' + bankNotices[0] : '';
             const prefix = autoTriggered ? `План 2/2 продаж выполнен! Наступил День ${state.day}!` : `День ${state.day}!`;
             showToast(activeOffers > 0
-                ? `${prefix} ${activeOffers} сообщ. от покупателей.${lombNotice}`
-                : `${prefix} Рынок и цены обновились.${lombNotice}`, 'info');
+                ? `${prefix} ${activeOffers} сообщ. от покупателей.${lombNotice}${extraBankStr}`
+                : `${prefix} Рынок и цены обновились.${lombNotice}${extraBankStr}`, bankNotices.some(n => n.includes('🚨')) ? 'error' : 'info');
         };
 
         // ==================== НАСТРОЙКИ, ЛИДЕРБОРД И FIREBASE ====================
@@ -7838,6 +8707,18 @@
             state.reputation = 5.0;
             state.soldCount = 0;
             state.totalProfit = 0;
+            state.periodProfit = 0;
+            state.lastTaxPaid = 0;
+            state.taxRegime = 'npd';
+            state.taxInvoice = null;
+            state.taxFreezeActive = false;
+            state.mfoLoan = null;
+            state.bankCredit = null;
+            state.closedLoansCount = 0;
+            state.creditRating = 60;
+            state.mfoCooldownDays = 0;
+            state.creditCooldownDays = 0;
+            state.bankHistory = [];
             state.currentTrendIdx = 0;
             state.inventory = [];
             state.partsInventory = [];
@@ -8196,6 +9077,17 @@
                     accessoryKitsCount: state.accessoryKitsCount || 0,
                     myListings: state.myListings || [],
                     lombardOwned: Boolean(state.lombardOwned),
+                    periodProfit: state.periodProfit || 0,
+                    taxRegime: state.taxRegime || 'npd',
+                    taxInvoice: state.taxInvoice || null,
+                    taxFreezeActive: Boolean(state.taxFreezeActive),
+                    mfoLoan: state.mfoLoan || null,
+                    bankCredit: state.bankCredit || null,
+                    closedLoansCount: state.closedLoansCount || 0,
+                    creditRating: getCreditRating(),
+                    mfoCooldownDays: state.mfoCooldownDays || 0,
+                    creditCooldownDays: state.creditCooldownDays || 0,
+                    bankHistory: state.bankHistory || [],
                     upgrades: state.upgrades || {},
                     usedLiteAdminCodes: state.usedLiteAdminCodes || [],
                     liteAdminUnlocked: Boolean(state.liteAdminUnlocked),
@@ -8233,7 +9125,18 @@
                         accessoryKitsCount: data.accessoryKitsCount || 0,
                         myListings: Array.isArray(data.myListings) ? data.myListings : [],
                         lombardOwned: Boolean(data.lombardOwned),
-                        upgrades: { solderingStation: false, eloquenceLevel: 0, optbazaFriend: false, ...(data.upgrades || {}) },
+                        periodProfit: data.periodProfit || 0,
+                        taxRegime: data.taxRegime || 'npd',
+                        taxInvoice: data.taxInvoice || null,
+                        taxFreezeActive: Boolean(data.taxFreezeActive),
+                        mfoLoan: data.mfoLoan || null,
+                        bankCredit: data.bankCredit || null,
+                        closedLoansCount: data.closedLoansCount || 0,
+                        creditRating: typeof data.creditRating === 'number' ? data.creditRating : 60,
+                        mfoCooldownDays: data.mfoCooldownDays || 0,
+                        creditCooldownDays: data.creditCooldownDays || 0,
+                        bankHistory: Array.isArray(data.bankHistory) ? data.bankHistory : [],
+                        upgrades: { solderingStation: false, eloquenceLevel: 0, optbazaFriend: false, edlBox: false, rootHideSoft: false, ...(data.upgrades || {}) },
                         usedLiteAdminCodes: Array.isArray(data.usedLiteAdminCodes) ? data.usedLiteAdminCodes : [],
                         liteAdminUnlocked: Boolean(data.liteAdminUnlocked)
                     };
