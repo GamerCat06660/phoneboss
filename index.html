@@ -47,11 +47,58 @@
             transform: scale(0.88);
         }
         .screen-transition {
-            animation: appOpen 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: appOpen 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            transform-origin: center 65%;
+            will-change: transform, opacity;
+        }
+        .screen-closing {
+            animation: appClose 0.24s cubic-bezier(0.32, 0, 0.67, 0) forwards;
+            transform-origin: center 75%;
+            pointer-events: none;
+            will-change: transform, opacity;
+        }
+        .home-entering {
+            animation: homeZoomIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            will-change: transform, opacity;
         }
         @keyframes appOpen {
-            from { opacity: 0; transform: scale(0.96) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            0% {
+                opacity: 0;
+                transform: scale(0.84) translateY(28px);
+                border-radius: 34px;
+            }
+            65% {
+                opacity: 1;
+                transform: scale(1.008) translateY(-1px);
+                border-radius: 12px;
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                border-radius: 0px;
+            }
+        }
+        @keyframes appClose {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                border-radius: 0px;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.86) translateY(32px);
+                border-radius: 34px;
+            }
+        }
+        @keyframes homeZoomIn {
+            0% {
+                opacity: 0.35;
+                transform: scale(1.07);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
         @keyframes phoneFlip {
             0% { transform: perspective(600px) rotateY(0deg) scale(1); }
@@ -301,14 +348,6 @@
 
                     <!-- Сетка иконок приложений (без дубликатов с Dock, 4 в ряду) -->
                     <div id="home-apps-grid" class="grid grid-cols-4 gap-y-2 gap-x-2 pt-1">
-                        <button onclick="openApp('parts')" class="app-icon-btn flex flex-col items-center gap-1 group">
-                            <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-purple-500 via-violet-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-purple-950/60 border border-white/25 relative">
-                                <i class="fa-solid fa-microchip text-xl text-white"></i>
-                                <span id="badge-parts" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-4 bg-purple-400 text-slate-950 text-[9px] font-black px-1 rounded-full flex items-center justify-center shadow border border-slate-950">0</span>
-                            </div>
-                            <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Запчасти</span>
-                        </button>
-
                         <button onclick="openApp('inventory')" class="app-icon-btn flex flex-col items-center gap-1 group">
                             <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-emerald-400 via-teal-600 to-emerald-800 flex items-center justify-center shadow-lg shadow-emerald-950/60 border border-white/25 relative">
                                 <i class="fa-solid fa-mobile-screen-button text-xl text-white"></i>
@@ -347,7 +386,7 @@
                         </button>
                     </div>
 
-                    <button onclick="nextDay()" class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-indigo-600/80 via-slate-800/90 to-slate-900/95 hover:from-indigo-500/80 border border-indigo-400/30 flex items-center justify-between gap-2 text-xs font-extrabold text-amber-200 shadow-lg active:scale-[0.99] transition">
+                    <button id="home-nextday-btn" onclick="nextDay()" class="w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-indigo-600/80 via-slate-800/90 to-slate-900/95 hover:from-indigo-500/80 border border-indigo-400/30 flex items-center justify-between gap-2 text-xs font-extrabold text-amber-200 shadow-lg active:scale-[0.99] transition">
                         <span class="flex items-center gap-2">
                             <i class="fa-solid fa-moon text-amber-300"></i>
                             <span>Завершить день</span>
@@ -524,19 +563,32 @@
 
             <!-- ==================== 3. ПРИЛОЖЕНИЕ МАСТЕРСКАЯ ==================== -->
             <section id="screen-workshop" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
-                <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
-                            <i class="fa-solid fa-chevron-left text-xs"></i>
-                        </button>
-                        <div>
-                            <h2 class="text-base font-extrabold text-white leading-none">Сервисный центр</h2>
-                            <span class="text-[11px] text-slate-400">Обесточивай АКБ и ставь детали</span>
+                <div class="shrink-0 px-3.5 py-2.5 bg-slate-900 border-b border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 shrink-0">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-base font-extrabold text-white leading-none">Сервисный центр</h2>
+                                <span id="ws-subtitle-text" class="text-[10px] text-slate-400">Железо, пайка и перепрошивка ПО</span>
+                            </div>
                         </div>
+                        <button onclick="openApp('parts')" class="relative px-2.5 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-[11px] font-extrabold flex items-center gap-1.5 active:scale-95 transition">
+                            <i class="fa-solid fa-microchip text-purple-300"></i>
+                            <span>ОптБаза</span>
+                            <span id="badge-parts" class="hidden min-w-[16px] h-4 bg-purple-400 text-slate-950 text-[9px] font-black px-1 rounded-full flex items-center justify-center">0</span>
+                        </button>
                     </div>
-                    <button onclick="openApp('parts')" class="px-2.5 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[11px] font-bold">
-                        <i class="fa-solid fa-cart-plus mr-1"></i> Запчасти
-                    </button>
+
+                    <div class="grid grid-cols-2 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                        <button id="ws-tab-hardware" onclick="setWorkshopTab('hardware')" class="py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-slate-950 transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-screwdriver-wrench"></i> Железо и Пайка
+                        </button>
+                        <button id="ws-tab-firmware" onclick="setWorkshopTab('firmware')" class="py-1.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-terminal"></i> Программатор / ПО
+                        </button>
+                    </div>
                 </div>
 
                 <div id="workshop-content" class="flex-1 overflow-y-auto no-scrollbar p-3.5 space-y-3"></div>
@@ -546,16 +598,16 @@
             <section id="screen-parts" class="hidden relative z-10 w-full h-full flex flex-col bg-slate-950 screen-transition">
                 <div class="shrink-0 px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div class="flex items-center gap-2.5">
-                        <button onclick="goHome()" class="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
+                        <button onclick="openApp('workshop')" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300" title="Вернуться в сервис">
                             <i class="fa-solid fa-chevron-left text-xs"></i>
                         </button>
                         <div>
                             <h2 class="text-base font-extrabold text-white leading-none">ОптБаза Запчастей</h2>
-                            <span class="text-[11px] text-slate-400">Оригинал (100% цены) или Копия (-40%)</span>
+                            <span class="text-[11px] text-slate-400">Детали только для твоих телефонов</span>
                         </div>
                     </div>
                     <button onclick="openApp('workshop')" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-bold">
-                        В мастерскую
+                        <i class="fa-solid fa-screwdriver-wrench mr-1"></i> К ремонту
                     </button>
                 </div>
 
@@ -922,6 +974,51 @@
                                 <button onclick="setFrameStyle('titanium')" class="py-2 px-1 rounded-xl bg-slate-950 border border-slate-400 text-[10px] font-bold text-slate-100">Титан</button>
                                 <button onclick="setFrameStyle('gold')" class="py-2 px-1 rounded-xl bg-slate-950 border border-amber-400 text-[10px] font-bold text-amber-300">Золото</button>
                                 <button onclick="setFrameStyle('neon')" class="py-2 px-1 rounded-xl bg-slate-950 border border-cyan-400 text-[10px] font-bold text-cyan-300">Неон</button>
+                            </div>
+                        </div>
+
+                        <div class="pt-1 border-t border-slate-800/80 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-slate-200">Цвет кнопки «Завершить день»</label>
+                                <button onclick="setNextDayColor('')" class="text-[10px] text-slate-400 hover:text-white underline">Сброс</button>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="setNextDayColor('#4f46e5')" class="w-7 h-7 rounded-xl bg-indigo-600 border border-white/25 shrink-0" title="Индиго"></button>
+                                <button onclick="setNextDayColor('#059669')" class="w-7 h-7 rounded-xl bg-emerald-600 border border-white/25 shrink-0" title="Изумруд"></button>
+                                <button onclick="setNextDayColor('#d97706')" class="w-7 h-7 rounded-xl bg-amber-600 border border-white/25 shrink-0" title="Янтарь"></button>
+                                <button onclick="setNextDayColor('#e11d48')" class="w-7 h-7 rounded-xl bg-rose-600 border border-white/25 shrink-0" title="Рубин"></button>
+                                <button onclick="setNextDayColor('#0284c7')" class="w-7 h-7 rounded-xl bg-sky-600 border border-white/25 shrink-0" title="Небесный"></button>
+                                <button onclick="setNextDayColor('#1e293b')" class="w-7 h-7 rounded-xl bg-slate-800 border border-white/25 shrink-0" title="Графит"></button>
+                                <label class="flex-1 h-7 rounded-xl bg-slate-950 border border-slate-700 px-2 flex items-center justify-between cursor-pointer text-[10px] font-bold text-slate-300">
+                                    <span>Свой</span>
+                                    <input id="settings-nextday-color-input" oninput="setNextDayColor(this.value)" type="color" value="#4f46e5" class="w-5 h-5 bg-transparent border-0 cursor-pointer">
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-sky-500/35 rounded-2xl p-3 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                                        <i class="fa-solid fa-palette text-sky-400"></i> Единый цвет на всю ОС
+                                    </div>
+                                    <div class="text-[10px] text-slate-400">Красит обои, банк, иконки, рамку и кнопку дня в один тон</div>
+                                </div>
+                                <button id="clear-unified-color-btn" onclick="clearUnifiedOsColor()" class="hidden px-2.5 py-1 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-extrabold">
+                                    Снять
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="applyUnifiedOsColor('#10b981')" class="w-7 h-7 rounded-xl bg-emerald-500 border border-white/30 shrink-0" title="Изумруд"></button>
+                                <button onclick="applyUnifiedOsColor('#0ea5e9')" class="w-7 h-7 rounded-xl bg-sky-500 border border-white/30 shrink-0" title="Синий"></button>
+                                <button onclick="applyUnifiedOsColor('#a855f7')" class="w-7 h-7 rounded-xl bg-purple-500 border border-white/30 shrink-0" title="Фиолетовый"></button>
+                                <button onclick="applyUnifiedOsColor('#f43f5e')" class="w-7 h-7 rounded-xl bg-rose-500 border border-white/30 shrink-0" title="Малиновый"></button>
+                                <button onclick="applyUnifiedOsColor('#f59e0b')" class="w-7 h-7 rounded-xl bg-amber-500 border border-white/30 shrink-0" title="Золотой"></button>
+                                <button onclick="applyUnifiedOsColor('#64748b')" class="w-7 h-7 rounded-xl bg-slate-500 border border-white/30 shrink-0" title="Монохром"></button>
+                                <label class="flex-1 h-7 rounded-xl bg-slate-900 border border-slate-700 px-2 flex items-center justify-between cursor-pointer text-[10px] font-bold text-sky-300">
+                                    <span>Палитра</span>
+                                    <input id="settings-unified-color-input" oninput="applyUnifiedOsColor(this.value)" type="color" value="#0ea5e9" class="w-5 h-5 bg-transparent border-0 cursor-pointer">
+                                </label>
                             </div>
                         </div>
 
@@ -2553,22 +2650,54 @@
         };
 
         window.setWidgetTheme = function(theme) {
-            state.widgetTheme = theme;
+            state.widgetTheme = theme; state.unifiedOsColor = '';
             updateUI();
             showToast('Стиль виджета обновлён!', 'info');
         };
 
         window.setIconPack = function(pack) {
-            state.iconPack = pack;
+            state.iconPack = pack; state.unifiedOsColor = '';
             updateUI();
             showToast('Пакет иконок обновлён!', 'info');
         };
 
         window.setFrameStyle = function(frame) {
             state.frameStyle = frame;
+            state.unifiedOsColor = '';
             updateUI();
             showToast('Рамка смартфона изменена!', 'info');
         };
+
+        window.setNextDayColor = function(hex) {
+            state.nextDayColor = hex || '';
+            updateUI();
+            if (hex) showToast('Цвет кнопки «Завершить день» обновлён!', 'info');
+            else showToast('Цвет кнопки дня сброшен на стандартный', 'info');
+        };
+
+        window.applyUnifiedOsColor = function(hex) {
+            if (!hex) return;
+            state.unifiedOsColor = hex;
+            state.nextDayColor = hex;
+            updateUI();
+        };
+
+        window.clearUnifiedOsColor = function() {
+            state.unifiedOsColor = '';
+            state.nextDayColor = '';
+            updateUI();
+            showToast('Единый цвет отключён — возвращены стандартные темы', 'info');
+        };
+
+        function hexToRgbTuple(hex) {
+            const clean = String(hex || '').replace('#', '');
+            if (clean.length !== 6) return [16, 185, 129];
+            return [
+                parseInt(clean.slice(0, 2), 16) || 0,
+                parseInt(clean.slice(2, 4), 16) || 0,
+                parseInt(clean.slice(4, 6), 16) || 0
+            ];
+        }
 
         function ensureSnowflakesRendered() {
             const overlay = document.getElementById('snow-overlay');
@@ -2602,27 +2731,35 @@
             const iq = phone.installedQuality || {};
             const copyCount = ['screen', 'battery', 'body', 'camera'].filter(k => iq[k] === 'copy').length;
             const copyPenalty = Math.min(0.26, copyCount * 0.08);
-            const kitBonus = phone.hasFullKit ? 0.10 : 0;
+            const kitFlatBonus = phone.hasFullKit ? 1000 : 0;
+            const fw = phone.firmwareState || 'global';
+            let fwMult = 0;
+            if (fw === 'cn') fwMult = -0.18;
+            else if (fw === 'custom_unlocked') fwMult = -0.09;
+            else if (fw === 'bootloop') fwMult = -0.45;
+            else if (fw === 'hardbrick') fwMult = -0.65;
 
-            if (defectsCount > 0 || isDisassembled) {
-                const factor = Math.max(0.20, 1 - defectsCount * 0.25 - (isDisassembled ? 0.20 : 0) - copyPenalty + kitBonus);
+            if (defectsCount > 0 || isDisassembled || fw === 'bootloop' || fw === 'hardbrick') {
+                const factor = Math.max(0.18, 1 - defectsCount * 0.25 - (isDisassembled ? 0.20 : 0) - copyPenalty + fwMult);
                 return {
                     currentIdeal,
-                    fairPrice: Math.max(800, Math.round((currentIdeal * factor) / 100) * 100),
+                    fairPrice: Math.max(800, Math.round((currentIdeal * factor) / 100) * 100 + kitFlatBonus),
                     copyCount,
                     copyPenalty,
-                    hasFullKit: Boolean(phone.hasFullKit)
+                    hasFullKit: Boolean(phone.hasFullKit),
+                    firmwareState: fw
                 };
             }
 
             const repBonus = (state.reputation - 4.8) * 0.04;
-            const finalMult = Math.max(0.75, 1 + repBonus - copyPenalty + kitBonus);
+            const finalMult = Math.max(0.65, 1 + repBonus - copyPenalty + fwMult);
             return {
                 currentIdeal,
-                fairPrice: Math.max(1000, Math.round((currentIdeal * finalMult) / 100) * 100),
+                fairPrice: Math.max(1000, Math.round((currentIdeal * finalMult) / 100) * 100 + kitFlatBonus),
                 copyCount,
                 copyPenalty,
-                hasFullKit: Boolean(phone.hasFullKit)
+                hasFullKit: Boolean(phone.hasFullKit),
+                firmwareState: fw
             };
         }
 
@@ -2640,6 +2777,8 @@
             widgetTheme: 'emerald',
             iconPack: 'default',
             frameStyle: 'default',
+            unifiedOsColor: '',
+            nextDayColor: '',
             snowEnabled: true,
             soundEnabled: true,
             hapticEnabled: true,
@@ -2663,7 +2802,9 @@
             upgrades: {
                 solderingStation: false,
                 eloquenceLevel: 0,
-                optbazaFriend: false
+                optbazaFriend: false,
+                edlBox: false,
+                rootHideSoft: false
             },
             usedLiteAdminCodes: [],
             liteAdminUnlocked: false,
@@ -2673,6 +2814,7 @@
             activeMyListingUid: null,
             modalPreviewMode: 'both',
             activeWorkshopPhoneId: null,
+            workshopTab: 'hardware',
             activeTool: 'screwdriver',
             selectedWorkshopPart: null,
             activeUnboxSession: null
@@ -2722,6 +2864,52 @@
             return [{ ...picked, severe: true, revealedOnOpen: false }];
         }
 
+        const FIRMWARE_META = {
+            global: {
+                badge: '✓ Global / Ростест',
+                short: 'Офиц. ПО (Global)',
+                colorClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+                desc: 'Официальная прошивка с русским языком, Google-сервисами и работающими банковскими приложениями.'
+            },
+            cn: {
+                badge: '🇨🇳 Китайская прошивка (CN)',
+                short: 'CN ROM (без Google)',
+                colorClass: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                desc: 'Аппарат для внутреннего рынка Китая: нет русского языка и Google Play, заблокирован загрузчик.'
+            },
+            custom_unlocked: {
+                badge: '🔓 Разблокирован / Кастом',
+                short: 'Unlocked / Root',
+                colorClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+                desc: 'Загрузчик открыт (Bootloader Unlocked) или стоит Root/Magisk. Банковские приложения и Мир Пэй ругаются!'
+            },
+            bootloop: {
+                badge: '🧱 Бутлуп (висит на лого)',
+                short: 'Bootloop (Soft-Brick)',
+                colorClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                desc: 'Сбой системного раздела после неудачного обновления: телефон циклически перезагружается на логотипе.'
+            },
+            hardbrick: {
+                badge: '💀 Hard-Brick (EDL 9008)',
+                short: 'Кирпич (EDL режим)',
+                colorClass: 'bg-red-950 text-rose-300 border-rose-500/60',
+                desc: 'Затёрт загрузчик! Экран чёрный, определяется ПК только в аварийном режиме Qualcomm EDL / BROM.'
+            }
+        };
+
+        function rollFirmwareState(brand, isUrgent = false) {
+            const r = Math.random();
+            if (isUrgent && r < 0.24) return 'bootloop';
+            if (r < 0.14) return 'bootloop';
+            if (brand === 'android') {
+                if (r < 0.32) return 'cn';
+                if (r < 0.44) return 'custom_unlocked';
+            } else {
+                if (r < 0.22) return 'custom_unlocked';
+            }
+            return 'global';
+        }
+
         let lombardTimerInterval = null;
         let lombardSecondsLeft = 20;
 
@@ -2759,6 +2947,9 @@
             if (!Array.isArray(phone.hiddenDefects)) phone.hiddenDefects = [];
             if (!Array.isArray(phone.severeDefects)) phone.severeDefects = [];
             if (typeof phone.diagnosed !== 'boolean') phone.diagnosed = false;
+            if (!phone.firmwareState) phone.firmwareState = 'global';
+            if (typeof phone.firmwareChecked !== 'boolean') phone.firmwareChecked = (phone.firmwareState === 'global');
+            if (typeof phone.batteryChargedForFlash !== 'boolean') phone.batteryChargedForFlash = false;
             return rs;
         }
 
@@ -2859,7 +3050,7 @@
                     const parsed = JSON.parse(raw);
                     state = { ...state, ...parsed };
                     if (typeof parsed.snowEnabled !== 'boolean') state.snowEnabled = true;
-                    state.upgrades = { solderingStation: false, eloquenceLevel: 0, optbazaFriend: false, ...(parsed.upgrades || {}) };
+                    state.upgrades = { solderingStation: false, eloquenceLevel: 0, optbazaFriend: false, edlBox: false, rootHideSoft: false, ...(parsed.upgrades || {}) };
                     state.selectedWorkshopPart = null;
                     migrateLegacyData();
                 }
@@ -2933,38 +3124,102 @@
             }
             ensureSnowflakesRendered();
 
+            const unifiedHex = state.unifiedOsColor || '';
+            const clearUniBtn = document.getElementById('clear-unified-color-btn');
+            if (clearUniBtn) {
+                if (unifiedHex) clearUniBtn.classList.remove('hidden');
+                else clearUniBtn.classList.add('hidden');
+            }
+            const uniPicker = document.getElementById('settings-unified-color-input');
+            if (uniPicker && unifiedHex) uniPicker.value = unifiedHex;
+
             const shell = document.getElementById('phone-shell');
-            if (shell) {
-                shell.classList.remove(
-                    'wallpaper-default', 'wallpaper-cyber', 'wallpaper-gold',
-                    'wallpaper-crimson', 'wallpaper-arctic', 'wallpaper-matrix',
-                    'wallpaper-sunset', 'wallpaper-midnight',
-                    'shell-frame-default', 'shell-frame-titanium', 'shell-frame-gold', 'shell-frame-neon', 'shell-frame-emerald'
-                );
-                shell.classList.add('wallpaper-' + (state.wallpaper || 'default'));
-                shell.classList.add('shell-frame-' + (state.frameStyle || 'default'));
-            }
-
             const bankW = document.getElementById('home-bank-widget');
-            if (bankW) {
-                const wStyles = {
-                    emerald: 'bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden',
-                    obsidian: 'bg-gradient-to-br from-slate-800/95 via-zinc-900/95 to-black/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-slate-600/50 relative overflow-hidden',
-                    royal: 'bg-gradient-to-br from-indigo-600/95 via-purple-800/95 to-slate-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-indigo-400/35 relative overflow-hidden',
-                    gold: 'bg-gradient-to-br from-amber-500/95 via-yellow-700/95 to-stone-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-amber-300/45 relative overflow-hidden'
-                };
-                bankW.className = wStyles[state.widgetTheme || 'emerald'] || wStyles.emerald;
-            }
-
             const appsGrid = document.getElementById('home-apps-grid');
             const dockBar = document.getElementById('home-dock-bar');
-            [appsGrid, dockBar].forEach(el => {
-                if (!el) return;
-                el.classList.remove('icon-pack-glass', 'icon-pack-gold', 'icon-pack-cyber', 'icon-pack-mono');
-                if (state.iconPack && state.iconPack !== 'default') {
-                    el.classList.add('icon-pack-' + state.iconPack);
+            const nextDayBtn = document.getElementById('home-nextday-btn');
+
+            if (unifiedHex) {
+                const [r, g, b] = hexToRgbTuple(unifiedHex);
+                if (shell) {
+                    shell.style.background = `radial-gradient(circle at 20% 15%, rgba(${r},${g},${b},0.34), transparent 52%), radial-gradient(circle at 80% 80%, rgba(${r},${g},${b},0.22), transparent 55%), linear-gradient(180deg, #090d16 0%, #050811 100%)`;
+                    shell.style.borderColor = `rgba(${r},${g},${b},0.65)`;
+                    shell.style.boxShadow = `0 0 34px rgba(${r},${g},${b},0.22)`;
                 }
-            });
+                if (bankW) {
+                    bankW.className = 'backdrop-blur-md rounded-3xl p-3 shadow-lg border relative overflow-hidden';
+                    bankW.style.background = `linear-gradient(135deg, rgba(${r},${g},${b},0.92) 0%, rgba(${Math.round(r*0.45)},${Math.round(g*0.45)},${Math.round(b*0.45)},0.95) 55%, rgba(9,13,22,0.98) 100%)`;
+                    bankW.style.borderColor = `rgba(${r},${g},${b},0.55)`;
+                }
+                if (dockBar) {
+                    dockBar.style.background = `rgba(${r},${g},${b},0.16)`;
+                    dockBar.style.borderColor = `rgba(${r},${g},${b},0.38)`;
+                }
+                [appsGrid, dockBar].forEach(el => {
+                    if (!el) return;
+                    el.classList.remove('icon-pack-glass', 'icon-pack-gold', 'icon-pack-cyber', 'icon-pack-mono');
+                    el.querySelectorAll('button > div:first-child').forEach(iconBox => {
+                        iconBox.style.background = `linear-gradient(135deg, rgba(${r},${g},${b},0.95), rgba(${Math.round(r*0.38)},${Math.round(g*0.38)},${Math.round(b*0.38)},0.98))`;
+                        iconBox.style.borderColor = `rgba(255,255,255,0.32)`;
+                    });
+                });
+            } else {
+                if (shell) {
+                    shell.style.background = '';
+                    shell.style.borderColor = '';
+                    shell.style.boxShadow = '';
+                    shell.classList.remove(
+                        'wallpaper-default', 'wallpaper-cyber', 'wallpaper-gold',
+                        'wallpaper-crimson', 'wallpaper-arctic', 'wallpaper-matrix',
+                        'wallpaper-sunset', 'wallpaper-midnight',
+                        'shell-frame-default', 'shell-frame-titanium', 'shell-frame-gold', 'shell-frame-neon', 'shell-frame-emerald'
+                    );
+                    shell.classList.add('wallpaper-' + (state.wallpaper || 'default'));
+                    shell.classList.add('shell-frame-' + (state.frameStyle || 'default'));
+                }
+                if (bankW) {
+                    bankW.style.background = '';
+                    bankW.style.borderColor = '';
+                    const wStyles = {
+                        emerald: 'bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden',
+                        obsidian: 'bg-gradient-to-br from-slate-800/95 via-zinc-900/95 to-black/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-slate-600/50 relative overflow-hidden',
+                        royal: 'bg-gradient-to-br from-indigo-600/95 via-purple-800/95 to-slate-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-indigo-400/35 relative overflow-hidden',
+                        gold: 'bg-gradient-to-br from-amber-500/95 via-yellow-700/95 to-stone-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-amber-300/45 relative overflow-hidden'
+                    };
+                    bankW.className = wStyles[state.widgetTheme || 'emerald'] || wStyles.emerald;
+                }
+                if (dockBar) {
+                    dockBar.style.background = '';
+                    dockBar.style.borderColor = '';
+                }
+                [appsGrid, dockBar].forEach(el => {
+                    if (!el) return;
+                    el.querySelectorAll('button > div:first-child').forEach(iconBox => {
+                        iconBox.style.background = '';
+                        iconBox.style.borderColor = '';
+                    });
+                    el.classList.remove('icon-pack-glass', 'icon-pack-gold', 'icon-pack-cyber', 'icon-pack-mono');
+                    if (state.iconPack && state.iconPack !== 'default') {
+                        el.classList.add('icon-pack-' + state.iconPack);
+                    }
+                });
+            }
+
+            if (nextDayBtn) {
+                const ndHex = state.nextDayColor || unifiedHex;
+                const ndPicker = document.getElementById('settings-nextday-color-input');
+                if (ndPicker && ndHex) ndPicker.value = ndHex;
+                if (ndHex) {
+                    const [r, g, b] = hexToRgbTuple(ndHex);
+                    nextDayBtn.style.background = `linear-gradient(90deg, rgba(${r},${g},${b},0.85) 0%, rgba(${Math.round(r*0.35)},${Math.round(g*0.35)},${Math.round(b*0.35)},0.95) 100%)`;
+                    nextDayBtn.style.borderColor = `rgba(${r},${g},${b},0.65)`;
+                    nextDayBtn.style.color = '#ffffff';
+                } else {
+                    nextDayBtn.style.background = '';
+                    nextDayBtn.style.borderColor = '';
+                    nextDayBtn.style.color = '';
+                }
+            }
 
             const totalOffers = (state.myListings || []).reduce((acc, item) => acc + (item.offers ? item.offers.length : 0), 0);
             const mBadge = document.getElementById('badge-market');
@@ -3038,9 +3293,15 @@
             saveLocal();
         }
 
+        let appCloseAnimTimer = null;
+
         window.openApp = function(appName) {
             playSfx('tap');
             cancelActivePartDrag();
+            if (appCloseAnimTimer) {
+                clearTimeout(appCloseAnimTimer);
+                appCloseAnimTimer = null;
+            }
             if (lombardTimerInterval && appName !== 'lombard') {
                 clearInterval(lombardTimerInterval);
                 lombardTimerInterval = null;
@@ -3048,10 +3309,24 @@
             const screens = ['home', 'market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'profile'];
             screens.forEach(s => {
                 const el = document.getElementById('screen-' + s);
-                if (el) el.classList.add('hidden');
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('screen-closing', 'home-entering');
+                }
             });
             const target = document.getElementById('screen-' + appName);
-            if (target) target.classList.remove('hidden');
+            if (target) {
+                target.classList.remove('hidden');
+                if (appName === 'home') {
+                    target.classList.remove('home-entering');
+                    void target.offsetWidth;
+                    target.classList.add('home-entering');
+                } else {
+                    target.classList.remove('screen-transition');
+                    void target.offsetWidth;
+                    target.classList.add('screen-transition');
+                }
+            }
 
             if (appName === 'market') setAvitoTab(state.avitoTab || 'home');
             if (appName === 'parts') renderPartsShop();
@@ -3075,8 +3350,36 @@
         };
 
         window.goHome = function() {
-            openApp('home');
+            const screens = ['market', 'parts', 'workshop', 'inventory', 'diag', 'lombard', 'upgrades', 'collection', 'casino', 'profile'];
+            const activeSub = screens.map(s => document.getElementById('screen-' + s)).find(el => el && !el.classList.contains('hidden'));
+            if (!activeSub) {
+                openApp('home');
+                updateUI();
+                return;
+            }
+            playSfx('tap');
+            cancelActivePartDrag();
+            if (lombardTimerInterval) {
+                clearInterval(lombardTimerInterval);
+                lombardTimerInterval = null;
+            }
+            activeSub.classList.remove('screen-transition');
+            activeSub.classList.add('screen-closing');
+
+            const homeEl = document.getElementById('screen-home');
+            if (homeEl) {
+                homeEl.classList.remove('hidden', 'home-entering');
+                void homeEl.offsetWidth;
+                homeEl.classList.add('home-entering');
+            }
             updateUI();
+
+            if (appCloseAnimTimer) clearTimeout(appCloseAnimTimer);
+            appCloseAnimTimer = setTimeout(() => {
+                activeSub.classList.add('hidden');
+                activeSub.classList.remove('screen-closing');
+                appCloseAnimTimer = null;
+            }, 220);
         };
 
         // ==================== АВИТО: ГЕНЕРАЦИЯ, ЧАТ И ТОРГ ====================
@@ -3091,34 +3394,82 @@
                 const temper = TEMPERS[Math.floor(Math.random() * TEMPERS.length)];
                 const greed = GREED_ARCHETYPES[Math.floor(Math.random() * GREED_ARCHETYPES.length)];
 
-                const brokenScreen = Math.random() < 0.58;
-                const badBattery = Math.random() < 0.50;
-                const brokenCamera = Math.random() < 0.34;
-                const scratchedBody = !brokenScreen && !badBattery && !brokenCamera ? true : Math.random() < 0.36;
-                const isUrgent = greed.id === 'dump' || Math.random() < 0.28;
+                // ~40% объявлений — в хорошем или идеальном состоянии (без поломок), ~60% — под ремонт
+                const isCleanCondition = Math.random() < 0.40;
+                let brokenScreen = false;
+                let badBattery = false;
+                let brokenCamera = false;
+                let scratchedBody = false;
+
+                if (!isCleanCondition) {
+                    brokenScreen = Math.random() < 0.56;
+                    badBattery = Math.random() < 0.48;
+                    brokenCamera = Math.random() < 0.32;
+                    scratchedBody = (!brokenScreen && !badBattery && !brokenCamera) ? true : Math.random() < 0.35;
+                }
+
+                const isUrgent = greed.id === 'dump' || Math.random() < 0.30;
                 const camIssueText = brokenCamera ? CAMERA_ISSUE_LABELS[Math.floor(Math.random() * CAMERA_ISSUE_LABELS.length)] : '';
+                const fwState = isCleanCondition
+                    ? (Math.random() < 0.22 ? 'cn' : 'global')
+                    : rollFirmwareState(model.brand, isUrgent);
 
-                let baseDefectCost = 0;
-                if (brokenScreen) baseDefectCost += model.partCost.screen;
-                if (badBattery) baseDefectCost += model.partCost.battery;
-                if (scratchedBody) baseDefectCost += model.partCost.body;
-                if (brokenCamera) baseDefectCost += (model.partCost.camera || 2000);
+                let askPrice;
+                if (isCleanCondition) {
+                    // В идеале: либо срочный слив ниже рынка (76–88%), либо рыночная цена (90–100%) под торг
+                    let cleanFactor;
+                    if (isUrgent || greed.id === 'dump') {
+                        cleanFactor = 0.76 + Math.random() * 0.11; // 76% - 87% от рынка (жирный вариант для торга и перепродажи!)
+                    } else if (greed.id === 'fair') {
+                        cleanFactor = 0.87 + Math.random() * 0.09; // 87% - 96% от рынка
+                    } else {
+                        cleanFactor = 0.94 + Math.random() * 0.06; // 94% - 100% (ровно по рынку)
+                    }
+                    if (fwState === 'cn') cleanFactor -= 0.12;
+                    askPrice = Math.max(2000, Math.round((dynamicIdeal * cleanFactor) / 100) * 100);
+                } else {
+                    let baseDefectCost = 0;
+                    if (brokenScreen) baseDefectCost += model.partCost.screen;
+                    if (badBattery) baseDefectCost += model.partCost.battery;
+                    if (scratchedBody) baseDefectCost += model.partCost.body;
+                    if (brokenCamera) baseDefectCost += (model.partCost.camera || 2000);
+                    if (fwState === 'cn') baseDefectCost += Math.round(dynamicIdeal * 0.16);
+                    if (fwState === 'custom_unlocked') baseDefectCost += Math.round(dynamicIdeal * 0.08);
+                    if (fwState === 'bootloop') baseDefectCost += Math.round(dynamicIdeal * 0.34);
 
-                let discount = baseDefectCost * greed.discountMult * (0.88 + Math.random() * 0.24);
-                if (isUrgent) discount += dynamicIdeal * 0.06;
+                    let discount = baseDefectCost * greed.discountMult * (0.88 + Math.random() * 0.24);
+                    if (isUrgent) discount += dynamicIdeal * 0.06;
+                    askPrice = Math.max(1500, Math.min(Math.round(dynamicIdeal * 0.95), Math.round((dynamicIdeal - discount) / 100) * 100));
+                }
 
-                const askPrice = Math.max(1500, Math.min(Math.round(dynamicIdeal * 0.96), Math.round((dynamicIdeal - discount) / 100) * 100));
                 const minPrice = Math.max(1000, Math.round((askPrice * temper.minFactor) / 100) * 100);
                 const TOXIC_DESCRIPTIONS = [
                     'Цена окончательная! Заикнётесь про торг или скидку — сразу в ЧС без разговоров.',
                     'Не тратьте моё и своё время, торга нет вообще ни рубля! Кому дорого — проходим мимо.',
                     'Продаю не спеша, цена бетон. Перекупы с предложениями «заберу дешевле» летят в бан.'
                 ];
-                const desc = temper.id === 'toxic'
+                const CLEAN_DESCRIPTIONS = [
+                    'Телефон в отличном состоянии, носился в чехле и защитном стекле. Любые проверки на месте!',
+                    'Полностью исправен, ничего не крутилось и не менялось. Срочно нужны деньги, поэтому отдаю ниже рынка.',
+                    'Подарили новый, этот лежит без дела. Состояние близко к идеалу, быстрым немного уступлю.',
+                    'Идеальное состояние, батарея держит отлично, экран без единой царапины.'
+                ];
+
+                let desc = temper.id === 'toxic'
                     ? TOXIC_DESCRIPTIONS[Math.floor(Math.random() * TOXIC_DESCRIPTIONS.length)]
-                    : greed.id === 'greedy'
-                        ? 'Продаю почти как новый! Трещина/износ на работу вообще не влияют, цена без глупого торга.'
-                        : DESCRIPTIONS[Math.floor(Math.random() * DESCRIPTIONS.length)];
+                    : isCleanCondition
+                        ? CLEAN_DESCRIPTIONS[Math.floor(Math.random() * CLEAN_DESCRIPTIONS.length)]
+                        : greed.id === 'greedy'
+                            ? 'Продаю почти как новый! Трещина/износ на работу вообще не влияют, цена без глупого торга.'
+                            : DESCRIPTIONS[Math.floor(Math.random() * DESCRIPTIONS.length)];
+
+                if (fwState === 'cn' && temper.id !== 'toxic') {
+                    desc = 'Привезён из Китая (CN версия), меню на английском/китайском, Google нужно накатывать. ' + desc;
+                } else if (fwState === 'bootloop' && temper.id !== 'toxic') {
+                    desc = 'После ночного обновления повис на логотипе и перезагружается! Продаю как есть под прошивку или на запчасти.';
+                } else if (fwState === 'custom_unlocked' && temper.id !== 'toxic') {
+                    desc = 'Прошит энтузиастом (открыт загрузчик / Root), банковские приложения ругаются. ' + desc;
+                }
 
                 list.push({
                     uid: 'lot_' + Date.now() + '_' + i + '_' + Math.floor(Math.random() * 999),
@@ -3137,6 +3488,7 @@
                     patience: 100,
                     blocked: false,
                     desc,
+                    firmwareState: fwState,
                     hiddenDefects: rollHiddenDefects(),
                     severeDefects: rollSevereDefects(),
                     askedHiddenInfo: false,
@@ -3218,6 +3570,7 @@
                         idealPrice: ideal,
                         hasFullKit: jackpot && Math.random() < 0.5,
                         preinstalledCopies: jackpot ? {} : rollPreinstalledCopies({ screen: hasScreen, battery: hasBat, body: hasBody, camera: hasCam }),
+                        firmwareState: jackpot ? 'global' : rollFirmwareState(model.brand, false),
                         defects: { screen: hasScreen, battery: hasBat, body: hasBody, camera: hasCam },
                         hiddenDefects: rollHiddenDefects(),
                         severeDefects: rollSevereDefects(),
@@ -3615,6 +3968,9 @@
                 if (lot.defects.battery) defectTags.push('АКБ');
                 if (lot.defects.camera) defectTags.push('Камера');
                 if (lot.defects.body) defectTags.push('Корпус');
+                if (lot.firmwareState === 'cn') defectTags.push('CN ПО');
+                if (lot.firmwareState === 'bootloop') defectTags.push('Бутлуп');
+                if (lot.firmwareState === 'custom_unlocked') defectTags.push('Root/Unlock');
 
                 return `
                     <div onclick="openDealModal('${lot.uid}')" class="bg-[#161616] border ${lot.blocked ? 'border-rose-500/40 opacity-60' : 'border-white/5 hover:border-white/20'} rounded-2xl overflow-hidden flex flex-col cursor-pointer active:scale-[0.98] transition">
@@ -3622,7 +3978,9 @@
                             ${previewSvg}
                             ${lot.isUrgent ? `<span class="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-orange-500 text-black text-[9px] font-black">🔥 Срочно</span>` : ''}
                             ${lot.blocked ? `<span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-black">ЧС</span>` : ''}
-                            ${defectTags.length > 0 ? `<span class="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-rose-300 text-[9px] font-bold">${defectTags.join(' • ')}</span>` : ''}
+                            ${defectTags.length > 0
+                                ? `<span class="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/75 text-rose-300 text-[9px] font-bold">${defectTags.join(' • ')}</span>`
+                                : `<span class="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-emerald-950/85 border border-emerald-500/40 text-emerald-300 text-[9px] font-extrabold">✨ В идеале</span>`}
                         </div>
                         <div class="p-2.5 flex-1 flex flex-col justify-between space-y-1">
                             <div class="flex items-start justify-between gap-1">
@@ -3760,7 +4118,14 @@
             if (lot.defects.battery) tags.push('<span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-bold">Изношен АКБ</span>');
             if (lot.defects.camera) tags.push(`<span class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 text-[10px] font-bold">Камера: ${lot.cameraIssueText || 'дефект линзы'}</span>`);
             if (lot.defects.body) tags.push('<span class="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-bold">Дефект корпуса</span>');
+            if (lot.firmwareState && lot.firmwareState !== 'global') {
+                const fm = FIRMWARE_META[lot.firmwareState];
+                if (fm) tags.push(`<span class="px-2 py-0.5 rounded-md border text-[10px] font-bold ${fm.colorClass}">${fm.badge}</span>`);
+            }
             if (lot.knownHiddenText) tags.push(`<span class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-200 text-[10px] font-bold">${lot.knownHiddenText}</span>`);
+            if (tags.length === 0) {
+                tags.push('<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">✨ Внешне в идеале (без поломок)</span>');
+            }
             document.getElementById('modal-defects').innerHTML = tags.join('');
 
             const askBtn = document.getElementById('btn-ask-hidden');
@@ -3948,6 +4313,9 @@
                 installedQuality: { ...(lot.preinstalledCopies || {}) },
                 revealedCopies: lot.askedHiddenInfo ? { ...(lot.preinstalledCopies || {}) } : {},
                 hasFullKit: false,
+                firmwareState: lot.firmwareState || 'global',
+                firmwareChecked: (lot.firmwareState || 'global') === 'global',
+                batteryChargedForFlash: false,
                 diagnosed: Boolean(lot.askedHiddenInfo && !lot.blocked),
                 hiddenDefects: Array.isArray(lot.hiddenDefects) ? lot.hiddenDefects : hiddenList,
                 severeDefects: Array.isArray(lot.severeDefects) ? lot.severeDefects : rollSevereDefects(),
@@ -3998,6 +4366,9 @@
                     partsSpent: 0,
                     installedQuality: { ...(it.preinstalledCopies || {}) },
                     revealedCopies: {},
+                    firmwareState: it.firmwareState || 'global',
+                    firmwareChecked: (it.firmwareState || 'global') === 'global',
+                    batteryChargedForFlash: false,
                     hasFullKit: Boolean(it.hasFullKit),
                     diagnosed: false,
                     hiddenDefects: it.hiddenDefects || [],
@@ -4130,6 +4501,11 @@
             if (phone.defects.camera) brokenList.push('неисправная камера');
             if (phone.defects.body) brokenList.push('дефект корпуса');
 
+            const fw = phone.firmwareState || 'global';
+            if (fw === 'cn') brokenList.push('CN прошивка без Google');
+            if (fw === 'custom_unlocked') brokenList.push('открыт загрузчик / Root');
+            if (fw === 'bootloop') brokenList.push('бутлуп ПО');
+
             const iq = phone.installedQuality || {};
             const copyList = [];
             if (iq.screen === 'copy') copyList.push('дисплей (копия)');
@@ -4180,6 +4556,10 @@
                 showToast(`Нельзя продать нерабочий аппарат (${phone.severeDefects[0].label})! Восстанови или разбери на донора в Мастерской.`, 'error');
                 return;
             }
+            if (phone.firmwareState === 'hardbrick' || phone.firmwareState === 'bootloop') {
+                showToast('Нельзя выставить кирпич / бутлуп! Сначала прошей смартфон во вкладке «Программатор / ПО» в Сервисе.', 'error');
+                return;
+            }
             state.publishingPhoneUid = uid;
             state.publishDisclosed = false;
 
@@ -4198,7 +4578,7 @@
             if (defectsCount === 0) condNotes.push('Идеал');
             else condNotes.push(`Поломок: ${defectsCount}`);
             if (val.copyCount > 0) condNotes.push(`копии (-${Math.round(val.copyPenalty * 100)}%)`);
-            if (val.hasFullKit) condNotes.push('комплект (+10%)');
+            if (val.hasFullKit) condNotes.push('комплект (+1 000 ₽)');
             document.getElementById('pub-cond-val').textContent = condNotes.join(', ');
 
             const discBox = document.getElementById('pub-disclosure-box');
@@ -4586,7 +4966,7 @@
             if (!container) return;
 
             const ownedModelIds = new Set(state.inventory.map(p => p.modelId));
-            const sortedCatalog = [...PHONE_CATALOG].sort((a, b) => (ownedModelIds.has(b.id) ? 1 : 0) - (ownedModelIds.has(a.id) ? 1 : 0));
+            const playerCatalog = PHONE_CATALOG.filter(m => ownedModelIds.has(m.id));
             const friendActive = state.upgrades && state.upgrades.optbazaFriend;
 
             const myPartsListHtml = state.partsInventory.length > 0 ? `
@@ -4617,30 +4997,44 @@
             ` : '';
 
             const kitCardHtml = `
-                <div class="bg-gradient-to-r from-emerald-950/90 to-slate-900 border border-emerald-500/40 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                <div class="bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/35 rounded-2xl p-3.5 flex items-center justify-between gap-3">
                     <div class="space-y-0.5">
                         <div class="text-xs font-extrabold text-white flex items-center gap-1.5">
                             <i class="fa-solid fa-box-open text-emerald-400"></i> Полный комплект аксессуаров
                         </div>
-                        <div class="text-[10px] text-slate-300">Коробка + блок 20W + кабель + стекло. Даёт +10% к оценке телефона!</div>
+                        <div class="text-[10px] text-slate-300">Коробка + кабель + чехол. Добавляет ровно <strong class="text-emerald-300">+1 000 ₽</strong> к рыночной оценке телефона!</div>
                         <div class="text-[10px] font-bold text-emerald-300">На складе: ${state.accessoryKitsCount || 0} шт.</div>
                     </div>
                     <div class="flex flex-col gap-1.5 shrink-0">
                         <button onclick="buyAccessoryKit()" class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs">
-                            Купить (800 ₽)
+                            Купить (500 ₽)
                         </button>
                         ${(state.accessoryKitsCount || 0) > 0 ? `
                             <button onclick="sellAccessoryKitBack()" class="px-3 py-1 rounded-lg bg-rose-500/15 border border-rose-500/35 text-rose-300 font-bold text-[10px] active:scale-95">
-                                Продать (650 ₽)
+                                Продать (400 ₽)
                             </button>
                         ` : ''}
                     </div>
                 </div>
             `;
 
-            const modelsHtml = sortedCatalog.map(model => {
-                const isNeeded = ownedModelIds.has(model.id);
+            if (playerCatalog.length === 0) {
+                container.innerHTML = myPartsListHtml + kitCardHtml + `
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 text-center space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-300 mx-auto flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white">У тебя сейчас нет смартфонов на складе</div>
+                        <p class="text-[11px] text-slate-400">ОптБаза подбирает запчасти строго под модели из твоего инвентаря. Купи трубку на Авито, и здесь сразу появятся детали для неё!</p>
+                        <button onclick="openApp('market')" class="px-4 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">Перейти на Авито</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const modelsHtml = playerCatalog.map(model => {
                 const myParts = state.partsInventory.filter(pt => pt.modelId === model.id);
+                const phonesOfModel = state.inventory.filter(p => p.modelId === model.id);
 
                 const renderPartRow = (type, title) => {
                     const oos = !friendActive && Boolean(state.partsOutOfStock[`${model.id}_${type}`]);
@@ -4648,11 +5042,15 @@
                     const cntCopy = myParts.filter(pt => pt.type === type && pt.quality === 'copy').length;
                     const pOrig = getPartPrice(model.id, type, 'orig');
                     const pCopy = getPartPrice(model.id, type, 'copy');
+                    const isBrokenOnOwned = phonesOfModel.some(p => p.defects && p.defects[type]);
 
                     return `
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2 flex items-center justify-between gap-2">
+                        <div class="bg-slate-950 border ${isBrokenOnOwned ? 'border-amber-500/40' : 'border-slate-800'} rounded-xl p-2 flex items-center justify-between gap-2">
                             <div class="min-w-0">
-                                <div class="text-[11px] font-bold text-slate-200">${title}</div>
+                                <div class="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
+                                    <span>${title}</span>
+                                    ${isBrokenOnOwned ? '<span class="px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 text-[9px] font-black">Нужно!</span>' : ''}
+                                </div>
                                 <div class="text-[9px] text-slate-400">В наличии: Ориг (${cntOrig}) • Копия (${cntCopy})</div>
                             </div>
                             <div class="flex gap-1.5 shrink-0">
@@ -4668,10 +5066,10 @@
                 };
 
                 return `
-                    <div class="bg-slate-900 border ${isNeeded ? 'border-purple-500/50' : 'border-slate-800'} rounded-2xl p-3 space-y-2">
+                    <div class="bg-slate-900 border border-purple-500/50 rounded-2xl p-3 space-y-2">
                         <div class="flex items-center justify-between">
                             <h3 class="text-sm font-extrabold text-white">${model.name}</h3>
-                            ${isNeeded ? '<span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">Есть на складе</span>' : ''}
+                            <span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">У тебя: ${phonesOfModel.length} шт.</span>
                         </div>
                         <div class="space-y-1.5">
                             ${renderPartRow('screen', 'Дисплейный модуль')}
@@ -4687,28 +5085,28 @@
         }
 
         window.buyAccessoryKit = function() {
-            if (state.money < 800) {
-                showToast('Не хватает 800 ₽ на покупку комплекта!', 'error');
+            if (state.money < 500) {
+                showToast('Не хватает 500 ₽ на покупку комплекта!', 'error');
                 return;
             }
-            state.money -= 800;
+            state.money -= 500;
             state.accessoryKitsCount = (state.accessoryKitsCount || 0) + 1;
             updateUI();
             renderPartsShop();
             saveToFirestore(false);
             playSfx('buy');
-            showToast('Куплен полный комплект аксессуаров (+10% к цене телефона)!', 'success');
+            showToast('Куплен комплект аксессуаров за 500 ₽ (+1 000 ₽ к оценке телефона)!', 'success');
         };
 
         window.sellAccessoryKitBack = function() {
             if ((state.accessoryKitsCount || 0) <= 0) return;
             state.accessoryKitsCount -= 1;
-            state.money += 650;
+            state.money += 400;
             playSfx('cash');
             updateUI();
             renderPartsShop();
             saveToFirestore(false);
-            showToast('Комплект аксессуаров продан обратно (+650 ₽)', 'info');
+            showToast('Комплект продан обратно (+400 ₽)', 'info');
         };
 
         window.sellPartBack = function(partId) {
@@ -4969,6 +5367,615 @@
             renderWorkshop();
         };
 
+        window.setWorkshopTab = function(tab) {
+            state.workshopTab = tab;
+            const hwBtn = document.getElementById('ws-tab-hardware');
+            const fwBtn = document.getElementById('ws-tab-firmware');
+            if (hwBtn && fwBtn) {
+                if (tab === 'hardware') {
+                    hwBtn.className = 'py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-slate-950 transition flex items-center justify-center gap-1.5';
+                    fwBtn.className = 'py-1.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5';
+                } else {
+                    fwBtn.className = 'py-1.5 rounded-lg text-xs font-extrabold bg-cyan-400 text-slate-950 transition flex items-center justify-center gap-1.5';
+                    hwBtn.className = 'py-1.5 rounded-lg text-xs font-extrabold text-slate-400 hover:text-white transition flex items-center justify-center gap-1.5';
+                }
+            }
+            playSfx('tap');
+            renderWorkshop();
+        };
+
+        // ==================== ИНТЕРАКТИВНЫЙ ПРОГРАММАТОР / ПРОШИВКА ====================
+        let activeFlashSession = null;
+        let flashTickInterval = null;
+        let timingRafId = null;
+
+        function clearFlashTimer() {
+            if (flashTickInterval) {
+                clearInterval(flashTickInterval);
+                flashTickInterval = null;
+            }
+            if (timingRafId) {
+                cancelAnimationFrame(timingRafId);
+                timingRafId = null;
+            }
+        }
+
+        function appendFlashLog(line, color = 'text-slate-300') {
+            if (!activeFlashSession) return;
+            activeFlashSession.logs.push({ text: line, color });
+            if (activeFlashSession.logs.length > 7) activeFlashSession.logs.shift();
+            const logBox = document.getElementById('flash-terminal-log');
+            if (logBox) {
+                logBox.innerHTML = activeFlashSession.logs.map(l => `<div class="${l.color} truncate">> ${l.text}</div>`).join('');
+                logBox.scrollTop = logBox.scrollHeight;
+            }
+        }
+
+        function renderFirmwareWorkbench(container, phone) {
+            const rs = ensurePhoneRepairState(phone);
+            const fw = phone.firmwareState || 'global';
+            const meta = FIRMWARE_META[fw] || FIRMWARE_META.global;
+            const u = state.upgrades || {};
+            const isDisassembled = rs.opened || rs.backOpened;
+            const isApple = phone.brand === 'iphone';
+
+            if (activeFlashSession && activeFlashSession.phoneUid !== phone.uid) {
+                clearFlashTimer();
+                activeFlashSession = null;
+            }
+
+            const phoneTabs = `
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    ${state.inventory.map(p => `
+                        <button onclick="selectWorkshopPhone('${p.uid}')" class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold border transition ${p.uid === phone.uid ? 'bg-cyan-400 text-slate-950 border-cyan-300' : 'bg-slate-900 text-slate-300 border-slate-800'}">
+                            ${p.modelName}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+
+            // ==================== АКТИВНАЯ ИНТЕРАКТИВНАЯ СЕССИЯ ПРОШИВКИ ====================
+            if (activeFlashSession && activeFlashSession.phoneUid === phone.uid) {
+                const s = activeFlashSession;
+                const phoneSvg = renderPhoneSVG(phone.modelId, phone.defects, { mode: 'front', height: 108 });
+
+                let stageContentHtml = '';
+
+                if (s.stage === 'boot_combo') {
+                    const comboTitle = isApple ? 'Режим DFU / Recovery (iTunes)' : 'Режим Fastboot / Download Mode';
+                    const comboHint = isApple
+                        ? 'Удерживай кнопку ниже 1.4 сек, чтобы перевести iPhone в режим DFU'
+                        : 'Удерживай «Vol- + Power» 1.4 сек, чтобы загнать смартфон в Fastboot';
+
+                    stageContentHtml = `
+                        <div class="bg-slate-950 border border-cyan-500/40 rounded-2xl p-3.5 space-y-3 text-center">
+                            <div class="text-xs font-black text-cyan-300">Шаг 1/3 • ${comboTitle}</div>
+                            <p class="text-[11px] text-slate-300 leading-snug">${comboHint}</p>
+
+                            <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                                <div id="boot-hold-bar" class="h-full bg-gradient-to-r from-amber-400 to-cyan-400 transition-all duration-75" style="width: ${s.holdProgress}%"></div>
+                            </div>
+
+                            <button onpointerdown="startBootComboHold()" onpointerup="stopBootComboHold()" onpointerleave="stopBootComboHold()" onpointercancel="stopBootComboHold()"
+                                    class="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs shadow-lg select-none transition">
+                                <i class="fa-solid fa-hand-pointer mr-1.5"></i> Удерживай: ${isApple ? '[Vol- + Side Button]' : '[Громкость - + Питание]'}
+                            </button>
+                        </div>
+                    `;
+                } else if (s.stage === 'cable_connect') {
+                    stageContentHtml = `
+                        <div class="bg-slate-950 border border-sky-500/40 rounded-2xl p-3.5 space-y-3 text-center">
+                            <div class="text-xs font-black text-sky-300">Шаг 2/3 • Устройство в режиме загрузки!</div>
+                            <p class="text-[11px] text-slate-300">Подключи сервисный кабель к разъёму смартфона для синхронизации.</p>
+                            <button onclick="plugFlashUsbCable()" class="w-full py-3.5 rounded-2xl bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black text-xs shadow-lg animate-pulse transition">
+                                <i class="fa-solid fa-plug mr-1.5"></i> Воткнуть ${isApple ? 'Lightning / USB-C кабель' : 'USB Type-C кабель'}
+                            </button>
+                        </div>
+                    `;
+                } else if (s.stage === 'timing_gate' || s.stage === 'flashing') {
+                    const g = s.timingGate;
+                    const greenLeft = g.greenStart;
+                    const greenWidth = g.greenEnd - g.greenStart;
+
+                    const stepsDots = [1, 2, 3].map(idx => {
+                        const done = idx < s.timingStageIdx;
+                        const active = idx === s.timingStageIdx && s.stage === 'timing_gate';
+                        const cls = done
+                            ? 'bg-emerald-400 text-slate-950 border-emerald-300'
+                            : active
+                                ? 'bg-amber-400 text-slate-950 border-white scale-105 shadow-md'
+                                : 'bg-slate-900 text-slate-500 border-slate-800';
+                        return `<span class="px-2 py-0.5 rounded-full border text-[9px] font-black transition ${cls}">Блок ${idx}/3</span>`;
+                    }).join('');
+
+                    stageContentHtml = `
+                        <div class="space-y-2.5">
+                            <!-- Полоса прогресса записи разделов -->
+                            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-2.5 space-y-1.5">
+                                <div class="flex items-center justify-between text-[11px]">
+                                    <span class="font-extrabold text-cyan-300 truncate" id="flash-partition-lbl">${s.currentPartition}</span>
+                                    <span class="font-black text-white shrink-0" id="flash-pct-lbl">${Math.floor(s.progress)}%</span>
+                                </div>
+                                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                                    <div id="flash-progress-bar" class="h-full bg-gradient-to-r from-cyan-400 via-sky-500 to-emerald-400 transition-all duration-150" style="width: ${s.progress}%"></div>
+                                </div>
+                            </div>
+
+                            <!-- ИНТЕРАКТИВНАЯ МИНИ-ИГРА: ПОПАДИ СТРЕЛКОЙ В ЗЕЛЁНУЮ ЗОНУ -->
+                            <div class="bg-slate-950 border-2 ${s.stage === 'timing_gate' ? 'border-emerald-400/70 shadow-lg shadow-emerald-950/50' : 'border-slate-800 opacity-75'} rounded-2xl p-3 space-y-2.5">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="text-[11px] font-black text-white flex items-center gap-1.5">
+                                        <i class="fa-solid fa-crosshairs text-emerald-400"></i>
+                                        <span>${g.title}</span>
+                                    </span>
+                                    <div class="flex items-center gap-1">${stepsDots}</div>
+                                </div>
+
+                                <p class="text-[10px] text-slate-400 leading-tight">
+                                    Останови бегунок строго в <strong class="text-emerald-300">зелёной зоне</strong> (ошибок: <strong class="${s.misses > 0 ? 'text-rose-400' : 'text-slate-200'}">${s.misses}/${s.maxMisses}</strong>)
+                                </p>
+
+                                <!-- Шкала со стрелкой влево-вправо и зелёной зоной -->
+                                <div class="relative pt-4 pb-1 px-1">
+                                    <!-- Двигающаяся треугольная стрелка сверху -->
+                                    <div id="flash-timing-arrow" class="absolute top-0 -translate-x-1/2 pointer-events-none" style="left: ${g.cursorPos}%;">
+                                        <svg width="16" height="14" viewBox="0 0 16 14" class="drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                                            <polygon points="1,1 15,1 8,13" fill="#ffffff" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- Трек с красными краями и зелёной зоной попадания -->
+                                    <div class="relative w-full h-5 rounded-xl bg-rose-950/90 border border-rose-500/40 overflow-hidden shadow-inner">
+                                        <!-- Зелёная зона -->
+                                        <div id="flash-timing-green" class="absolute top-0 bottom-0 bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-500 border-x-2 border-white/80 shadow-[0_0_12px_rgba(52,211,153,0.75)]"
+                                             style="left: ${greenLeft}%; width: ${greenWidth}%;"></div>
+                                        <!-- Вертикальная линия-визир под стрелкой -->
+                                        <div id="flash-timing-line" class="absolute top-0 bottom-0 w-0.5 bg-white -translate-x-1/2 shadow" style="left: ${g.cursorPos}%;"></div>
+                                    </div>
+                                </div>
+
+                                ${s.stage === 'timing_gate' ? `
+                                    <button onpointerdown="hitFlashTimingGate(event)" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-400 hover:opacity-95 active:scale-95 text-slate-950 font-black text-xs shadow-lg transition">
+                                        🎯 ЗАФИКСИРОВАТЬ В ЗЕЛЁНОЙ ЗОНЕ!
+                                    </button>
+                                ` : `
+                                    <div class="w-full py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-center text-[11px] font-bold text-cyan-300">
+                                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Запись блока в память NAND...
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = phoneTabs + `
+                    <div class="blueprint-grid bg-slate-900/95 border border-cyan-500/40 rounded-3xl p-3.5 space-y-3 shadow-2xl">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-wider text-cyan-400 font-extrabold">Активная сессия программатора</div>
+                                <h3 class="text-sm font-black text-white">${phone.modelName}</h3>
+                            </div>
+                            <button onclick="abortFlashSession()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-300 text-[10px] font-bold">
+                                Отмена
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 flex items-center gap-3">
+                            <div class="shrink-0 relative">
+                                ${phoneSvg}
+                                <span class="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.2 rounded bg-cyan-500 text-slate-950 text-[8px] font-black uppercase whitespace-nowrap">
+                                    ${s.stage === 'boot_combo' ? 'HOLD KEYS' : s.stage === 'cable_connect' ? 'WAIT USB' : 'SYNC NAND'}
+                                </span>
+                            </div>
+                            <div id="flash-terminal-log" class="flex-1 h-24 overflow-y-auto no-scrollbar bg-black/80 border border-slate-800 rounded-xl p-2 font-mono text-[10px] leading-relaxed space-y-0.5">
+                                ${s.logs.map(l => `<div class="${l.color} truncate">> ${l.text}</div>`).join('')}
+                            </div>
+                        </div>
+
+                        ${stageContentHtml}
+                    </div>
+                `;
+                return;
+            }
+
+            // ==================== ОБЫЧНЫЙ ЭКРАН ПОДГОТОВКИ К ПРОШИВКЕ ====================
+            const canCharge = !phone.defects.battery && !isDisassembled;
+            const batStatusHtml = phone.defects.battery
+                ? `<span class="text-rose-400 font-bold">⚠️ АКБ изношен! Сначала замени батарею во вкладке «Железо», иначе телефон вырубится при прошивке!</span>`
+                : isDisassembled
+                    ? `<span class="text-amber-300 font-bold">⚠️ Смартфон разобран! Сначала собери корпус.</span>`
+                    : phone.batteryChargedForFlash
+                        ? `<span class="text-emerald-300 font-bold">🔋 Заряд 68% — питание стабильно для прошивки</span>`
+                        : `<span class="text-amber-300 font-bold">🪫 Заряд 14% — перед прошивкой заряди АКБ до 50%+</span>`;
+
+            let actionsHtml = '';
+            if (fw === 'global') {
+                actionsHtml = `
+                    <div class="p-3 rounded-2xl bg-emerald-950/50 border border-emerald-500/30 text-xs text-emerald-300 font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                        <span>Установлена официальная прошивка Global / Ростест. Перепрошивка не требуется!</span>
+                    </div>
+                `;
+            } else if (fw === 'hardbrick') {
+                actionsHtml = u.edlBox ? `
+                    <button onclick="startInteractiveFlash('${phone.uid}', 'edl_recover')" class="w-full py-3 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:opacity-95 active:scale-95 text-slate-950 font-black text-xs shadow-lg transition">
+                        <i class="fa-solid fa-microchip mr-1"></i> Поднять кирпич через EDL / Auth-аккаунт (800 ₽)
+                    </button>
+                ` : `
+                    <div class="p-3 rounded-2xl bg-rose-950/60 border border-rose-500/40 space-y-2">
+                        <div class="text-xs font-extrabold text-rose-200">💀 Загрузчик затёрт (Hard-Brick)!</div>
+                        <p class="text-[11px] text-rose-300/90">Обычный кабель не видит телефон. Купи «Программатор EDL / Auth» в Прокачке или разбери аппарат на донорские запчасти.</p>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="openApp('upgrades')" class="py-2 rounded-xl bg-fuchsia-500 text-slate-950 font-black text-[11px]">В Прокачку</button>
+                            <button onclick="salvagePhoneAsDonor('${phone.uid}')" class="py-2 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-[11px]">♻️ На донора</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                actionsHtml = `
+                    <div class="space-y-2">
+                        ${!phone.batteryChargedForFlash ? `
+                            <button onclick="chargePhoneForFlash('${phone.uid}')" ${!canCharge ? 'disabled' : ''} class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-950 font-black text-xs transition">
+                                🔌 Подключить к ЛБП и зарядить АКБ до 65% (Бесплатно)
+                            </button>
+                        ` : ''}
+
+                        <button onclick="startInteractiveFlash('${phone.uid}', 'standard')" class="w-full py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 active:scale-95 text-slate-950 font-black text-xs transition">
+                            <i class="fa-solid fa-usb mr-1"></i> ${isApple ? 'Восстановить через 3uTools / DFU' : 'Прошить через Fastboot / Odin'} (Бесплатно)
+                        </button>
+
+                        ${u.edlBox ? `
+                            <button onclick="startInteractiveFlash('${phone.uid}', 'edl_clean')" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-400 hover:opacity-95 active:scale-95 text-slate-950 font-black text-xs shadow-lg transition">
+                                <i class="fa-solid fa-shield-halved mr-1"></i> Программатор EDL: чистый Global + Lock (500 ₽, широкая зона)
+                            </button>
+                        ` : ''}
+
+                        ${fw === 'custom_unlocked' && u.rootHideSoft ? `
+                            <button onclick="startInteractiveFlash('${phone.uid}', 'hide_root')" class="w-full py-2.5 rounded-2xl bg-purple-500/25 border border-purple-400/50 text-purple-200 font-extrabold text-xs transition">
+                                <i class="fa-solid fa-user-secret mr-1"></i> Скрыть Root / Play Integrity (Банки заработают, 300 ₽)
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = phoneTabs + `
+                <div class="blueprint-grid bg-slate-900/95 border border-slate-800 rounded-3xl p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <div class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Состояние прошивки</div>
+                            <h3 class="text-sm font-black text-white">${phone.modelName}</h3>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full border text-[10px] font-extrabold ${meta.colorClass}">
+                            ${meta.badge}
+                        </span>
+                    </div>
+
+                    <p class="text-[11px] text-slate-300 bg-slate-950 border border-slate-800 rounded-2xl p-3 leading-relaxed">
+                        ${meta.desc}
+                    </p>
+
+                    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-[11px] flex items-center gap-2">
+                        <i class="fa-solid fa-battery-half text-amber-400 text-sm"></i>
+                        <div>${batStatusHtml}</div>
+                    </div>
+
+                    ${actionsHtml}
+                </div>
+            `;
+        }
+
+        window.chargePhoneForFlash = function(uid) {
+            const phone = state.inventory.find(p => p.uid === uid);
+            if (!phone) return;
+            const rs = ensurePhoneRepairState(phone);
+            if (phone.defects.battery) return showToast('Сначала замени изношенный АКБ во вкладке «Железо»!', 'error');
+            if (rs.opened || rs.backOpened) return showToast('Сначала собери смартфон!', 'error');
+            phone.batteryChargedForFlash = true;
+            playSfx('pop');
+            renderWorkshop();
+            showToast('Аккумулятор заряжен до 65% — можно начинать прошивку!', 'success');
+        };
+
+        function setupTimingGateForStage(session, stageIdx) {
+            const isEdl = session.mode === 'edl_clean' || session.mode === 'edl_recover';
+            const titles = {
+                1: '1. Синхронизация Bootloader',
+                2: '2. Запись системного образа System/Super',
+                3: '3. Финализация и проверка RSA-подписи'
+            };
+            // Ширина зелёной зоны (%): с программатором EDL она шире и спокойнее, на обычном кабеле сужается к 3-му блоку
+            const baseWidth = isEdl ? 36 : (stageIdx === 1 ? 28 : stageIdx === 2 ? 23 : 19);
+            const greenStart = Math.floor(14 + Math.random() * (86 - 14 - baseWidth));
+            const speed = isEdl ? 0.95 : (1.15 + stageIdx * 0.24);
+
+            session.timingStageIdx = stageIdx;
+            session.timingGate = {
+                title: titles[stageIdx] || 'Синхронизация блока',
+                cursorPos: 8,
+                dir: 1,
+                speed,
+                greenStart,
+                greenEnd: greenStart + baseWidth
+            };
+        }
+
+        function startTimingArrowLoop() {
+            if (timingRafId) cancelAnimationFrame(timingRafId);
+            let lastTs = performance.now();
+
+            const step = (now) => {
+                const s = activeFlashSession;
+                if (!s || s.stage !== 'timing_gate') {
+                    timingRafId = null;
+                    return;
+                }
+                const dt = Math.min(40, now - lastTs) / 16.67;
+                lastTs = now;
+
+                const g = s.timingGate;
+                g.cursorPos += g.dir * g.speed * dt;
+                if (g.cursorPos >= 98) {
+                    g.cursorPos = 98;
+                    g.dir = -1;
+                } else if (g.cursorPos <= 2) {
+                    g.cursorPos = 2;
+                    g.dir = 1;
+                }
+
+                const arrowEl = document.getElementById('flash-timing-arrow');
+                const lineEl = document.getElementById('flash-timing-line');
+                if (arrowEl) arrowEl.style.left = g.cursorPos + '%';
+                if (lineEl) lineEl.style.left = g.cursorPos + '%';
+
+                timingRafId = requestAnimationFrame(step);
+            };
+            timingRafId = requestAnimationFrame(step);
+        }
+
+        window.startInteractiveFlash = function(uid, mode) {
+            const phone = state.inventory.find(p => p.uid === uid);
+            if (!phone) return;
+            const rs = ensurePhoneRepairState(phone);
+
+            if (phone.defects.battery) {
+                playSfx('error');
+                return showToast('Нельзя шить с неисправным АКБ! Замени батарею во вкладке «Железо».', 'error');
+            }
+            if (rs.opened || rs.backOpened) {
+                playSfx('error');
+                return showToast('Сначала собери корпус телефона!', 'error');
+            }
+            if (!phone.batteryChargedForFlash && mode !== 'edl_recover') {
+                playSfx('error');
+                return showToast('Сначала заряди АКБ до 50%+ кнопкой выше, иначе телефон вырубится на середине!', 'error');
+            }
+
+            const costs = { standard: 0, edl_recover: 800, edl_clean: 500, hide_root: 300 };
+            const cost = costs[mode] || 0;
+            if (state.money < cost) {
+                playSfx('error');
+                return showToast(`Не хватает ${formatRub(cost)}!`, 'error');
+            }
+
+            if (cost > 0) {
+                state.money -= cost;
+                phone.partsSpent = (phone.partsSpent || 0) + cost;
+                updateUI();
+            }
+
+            clearFlashTimer();
+            const isEdlDirect = mode === 'edl_recover' || mode === 'edl_clean';
+            activeFlashSession = {
+                phoneUid: uid,
+                mode,
+                stage: isEdlDirect ? 'cable_connect' : 'boot_combo',
+                holdProgress: 0,
+                progress: 0,
+                currentPartition: 'Подготовка образов...',
+                timingStageIdx: 1,
+                misses: 0,
+                maxMisses: isEdlDirect ? 3 : 2,
+                timingGate: {
+                    title: '1. Синхронизация Bootloader',
+                    cursorPos: 10,
+                    dir: 1,
+                    speed: 1.2,
+                    greenStart: 35,
+                    greenEnd: 65
+                },
+                logs: [
+                    { text: `Init PhoneBoss Flasher v5.0 [${phone.modelName}]`, color: 'text-cyan-300' },
+                    { text: isEdlDirect ? 'EDL Auth Token verified! Ожидание кабеля...' : 'Ожидание перевода устройства в Bootloader / DFU...', color: 'text-slate-300' }
+                ]
+            };
+            playSfx('tap');
+            renderWorkshop();
+        };
+
+        let holdComboTimer = null;
+        window.startBootComboHold = function() {
+            if (!activeFlashSession || activeFlashSession.stage !== 'boot_combo') return;
+            if (holdComboTimer) clearInterval(holdComboTimer);
+            triggerHaptic(18);
+            holdComboTimer = setInterval(() => {
+                if (!activeFlashSession || activeFlashSession.stage !== 'boot_combo') {
+                    clearInterval(holdComboTimer);
+                    holdComboTimer = null;
+                    return;
+                }
+                activeFlashSession.holdProgress = Math.min(100, activeFlashSession.holdProgress + 8);
+                const bar = document.getElementById('boot-hold-bar');
+                if (bar) bar.style.width = activeFlashSession.holdProgress + '%';
+
+                if (activeFlashSession.holdProgress >= 100) {
+                    clearInterval(holdComboTimer);
+                    holdComboTimer = null;
+                    activeFlashSession.stage = 'cable_connect';
+                    playSfx('pop');
+                    appendFlashLog('Устройство вошло в режим загрузчика (FASTBOOT / DFU)!', 'text-emerald-300');
+                    renderWorkshop();
+                }
+            }, 85);
+        };
+
+        window.stopBootComboHold = function() {
+            if (holdComboTimer) {
+                clearInterval(holdComboTimer);
+                holdComboTimer = null;
+            }
+            if (activeFlashSession && activeFlashSession.stage === 'boot_combo' && activeFlashSession.holdProgress < 100) {
+                activeFlashSession.holdProgress = 0;
+                const bar = document.getElementById('boot-hold-bar');
+                if (bar) bar.style.width = '0%';
+            }
+        };
+
+        window.plugFlashUsbCable = function() {
+            if (!activeFlashSession || activeFlashSession.stage !== 'cable_connect') return;
+            activeFlashSession.stage = 'timing_gate';
+            activeFlashSession.progress = 5;
+            activeFlashSession.currentPartition = 'Ожидание синхронизации Bootloader...';
+            setupTimingGateForStage(activeFlashSession, 1);
+            playSfx('pop');
+            appendFlashLog('USB Device Connected: High-Speed Port OK', 'text-sky-300');
+            appendFlashLog('Этап 1/3: Поймай окно синхронизации Bootloader!', 'text-amber-300');
+            renderWorkshop();
+            startTimingArrowLoop();
+        };
+
+        window.hitFlashTimingGate = function(e) {
+            if (e) e.preventDefault();
+            const s = activeFlashSession;
+            if (!s || s.stage !== 'timing_gate') return;
+
+            const g = s.timingGate;
+            const hit = g.cursorPos >= g.greenStart && g.cursorPos <= g.greenEnd;
+
+            if (hit) {
+                if (timingRafId) {
+                    cancelAnimationFrame(timingRafId);
+                    timingRafId = null;
+                }
+                playSfx('pop');
+                triggerHaptic([15, 25, 20]);
+                const stageNames = {
+                    1: 'Flashing bootloader.img & radio...',
+                    2: 'Flashing super / system.img...',
+                    3: 'Verifying SHA-256 & Rebooting...'
+                };
+                s.currentPartition = stageNames[s.timingStageIdx] || 'Writing NAND...';
+                appendFlashLog(`OK! Блок ${s.timingStageIdx}/3 зафиксирован → ${s.currentPartition}`, 'text-emerald-300');
+
+                s.stage = 'flashing';
+                renderWorkshop();
+
+                const targetPct = s.timingStageIdx === 1 ? 38 : s.timingStageIdx === 2 ? 74 : 100;
+                clearFlashTimer();
+                flashTickInterval = setInterval(() => {
+                    if (!activeFlashSession || activeFlashSession.stage !== 'flashing') {
+                        clearFlashTimer();
+                        return;
+                    }
+                    activeFlashSession.progress = Math.min(targetPct, activeFlashSession.progress + 6);
+                    const pBar = document.getElementById('flash-progress-bar');
+                    const pLbl = document.getElementById('flash-pct-lbl');
+                    if (pBar) pBar.style.width = Math.floor(activeFlashSession.progress) + '%';
+                    if (pLbl) pLbl.textContent = Math.floor(activeFlashSession.progress) + '%';
+
+                    if (activeFlashSession.progress >= targetPct) {
+                        clearFlashTimer();
+                        if (activeFlashSession.timingStageIdx < 3) {
+                            const nextIdx = activeFlashSession.timingStageIdx + 1;
+                            activeFlashSession.stage = 'timing_gate';
+                            activeFlashSession.currentPartition = `Ожидание синхронизации блока ${nextIdx}/3...`;
+                            setupTimingGateForStage(activeFlashSession, nextIdx);
+                            appendFlashLog(`Этап ${nextIdx}/3: Зафиксируй бегунок в зелёной зоне!`, 'text-amber-300');
+                            renderWorkshop();
+                            startTimingArrowLoop();
+                        } else {
+                            finishInteractiveFlash(activeFlashSession);
+                        }
+                    }
+                }, 70);
+            } else {
+                // Промах мимо зелёной зоны!
+                s.misses += 1;
+                playSfx('error');
+                triggerHaptic([50, 40, 60]);
+
+                if (s.misses >= s.maxMisses) {
+                    clearFlashTimer();
+                    const phone = state.inventory.find(p => p.uid === s.phoneUid);
+                    if (phone) {
+                        phone.firmwareState = 'hardbrick';
+                        phone.firmwareChecked = true;
+                    }
+                    activeFlashSession = null;
+                    playSfx('spark');
+                    updateUI();
+                    renderWorkshop();
+                    saveToFirestore(false);
+                    showToast('💀 Сбой разметки разделов! Слишком много промахов — телефон упал в Hard-Brick (EDL)!', 'error');
+                } else {
+                    appendFlashLog(`MISS! Ошибка синхронизации (${s.misses}/${s.maxMisses}) — попробуй ещё раз!`, 'text-rose-400');
+                    // Слегка меняем позицию зелёной зоны при промахе
+                    setupTimingGateForStage(s, s.timingStageIdx);
+                    renderWorkshop();
+                    startTimingArrowLoop();
+                }
+            }
+        };
+
+        function finishInteractiveFlash(session) {
+            const phone = state.inventory.find(p => p.uid === session.phoneUid);
+            activeFlashSession = null;
+            if (!phone) return;
+
+            if (session.mode === 'standard' && phone.firmwareState === 'cn' && phone.brand === 'android') {
+                phone.firmwareState = 'custom_unlocked';
+                phone.firmwareChecked = true;
+                playSfx('success');
+                updateUI();
+                renderWorkshop();
+                saveToFirestore(false);
+                showToast('Global накатили поверх китайца! Русский и Google есть, но загрузчик открыт (Unlocked).', 'info');
+                return;
+            }
+
+            phone.firmwareState = 'global';
+            phone.firmwareChecked = true;
+            playSfx('success');
+            updateUI();
+            renderWorkshop();
+            saveToFirestore(false);
+            showToast('✅ Все 3 блока прошиты идеально! Смартфон загрузился на чистой Global системе.', 'success');
+        }
+
+        window.abortFlashSession = function() {
+            clearFlashTimer();
+            if (holdComboTimer) {
+                clearInterval(holdComboTimer);
+                holdComboTimer = null;
+            }
+            const s = activeFlashSession;
+            activeFlashSession = null;
+            if (s && (s.stage === 'flashing' || s.stage === 'timing_gate') && s.progress > 10) {
+                const phone = state.inventory.find(p => p.uid === s.phoneUid);
+                if (phone) {
+                    phone.firmwareState = 'bootloop';
+                    phone.firmwareChecked = true;
+                }
+                playSfx('error');
+                showToast('⚠️ Кабель выдернут во время записи! Телефон ушёл в Бутлуп.', 'error');
+            } else {
+                playSfx('tap');
+                showToast('Сессия программатора отменена.', 'info');
+            }
+            updateUI();
+            renderWorkshop();
+        };
+
         window.flipWorkshopPhone = function() {
             const phone = state.inventory.find(p => p.uid === state.activeWorkshopPhoneId);
             if (!phone) return;
@@ -5138,7 +6145,7 @@
                 return `
                     <div class="bg-slate-950/90 border border-dashed border-slate-700 rounded-2xl px-3 py-2 flex items-center justify-between gap-2">
                         <span class="text-[10px] text-slate-400">На складе нет запчастей для этих узлов.</span>
-                        <button onclick="openApp('parts')" class="px-2.5 py-1 rounded-lg bg-purple-600/30 border border-purple-500/40 text-purple-200 text-[10px] font-bold">Купить</button>
+                        <button onclick="openApp('parts')" class="px-2.5 py-1 rounded-lg bg-purple-600/30 border border-purple-500/40 text-purple-200 text-[10px] font-extrabold"><i class="fa-solid fa-microchip mr-1"></i>ОптБаза</button>
                     </div>
                 `;
             }
@@ -5227,6 +6234,10 @@
             }
 
             const phone = state.inventory.find(p => p.uid === state.activeWorkshopPhoneId);
+            if (state.workshopTab === 'firmware') {
+                renderFirmwareWorkbench(container, phone);
+                return;
+            }
             const rs = ensurePhoneRepairState(phone);
             const isFrontFixed = !phone.defects.screen && !phone.defects.battery && !phone.defects.camera;
             const isBodyFixed = !phone.defects.body;
@@ -5761,11 +6772,11 @@
             }
             state.accessoryKitsCount -= 1;
             phone.hasFullKit = true;
-            phone.partsSpent = (phone.partsSpent || 0) + 800;
+            phone.partsSpent = (phone.partsSpent || 0) + 500;
             updateUI();
             renderInventory();
             saveToFirestore(false);
-            showToast(`Полный комплект добавлен к ${phone.modelName} (+10% к оценке)!`, 'success');
+            showToast(`Комплект добавлен к ${phone.modelName} (+1 000 ₽ к оценке продажи)!`, 'success');
         };
 
         function renderInventory() {
@@ -5788,6 +6799,10 @@
                 const invPhoneSvg = renderPhoneSVG(p.modelId, p.defects, { mode: 'both', height: 64 });
 
                 const tagsHtml = [];
+                if (p.firmwareState && p.firmwareState !== 'global') {
+                    const fm = FIRMWARE_META[p.firmwareState];
+                    if (fm) tagsHtml.push(`<span class="px-1.5 py-0.5 rounded border text-[9px] font-bold ${fm.colorClass}">${fm.short}</span>`);
+                }
                 if (val.copyCount > 0) tagsHtml.push(`<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-bold">Копии: ${val.copyCount}</span>`);
                 if (p.hasFullKit) tagsHtml.push(`<span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-bold">📦 Полный комплект</span>`);
                 if (Array.isArray(p.severeDefects) && p.severeDefects.length > 0 && p.severeDefects[0].revealedOnOpen) {
@@ -5913,6 +6928,25 @@
                                 </div>
                             `;
                         }).join('')}
+
+                        ${p.diagnosed ? (() => {
+                            const fw = p.firmwareState || 'global';
+                            const fm = FIRMWARE_META[fw] || FIRMWARE_META.global;
+                            if (fw === 'global') {
+                                return `<div class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-emerald-300 font-bold flex items-center justify-between"><span>Прошивка и регион:</span><span>${fm.badge}</span></div>`;
+                            }
+                            return `
+                                <div class="p-2.5 rounded-xl bg-slate-950 border border-amber-500/35 flex items-center justify-between gap-2">
+                                    <div>
+                                        <div class="text-[11px] font-extrabold text-amber-300">${fm.badge}</div>
+                                        <div class="text-[10px] text-slate-400">Требуется прошивка в Сервисном центре</div>
+                                    </div>
+                                    <button onclick="goFlashPhone('${p.uid}')" class="shrink-0 px-2.5 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-[11px]">
+                                        В Программатор →
+                                    </button>
+                                </div>
+                            `;
+                        })() : ''}
                     </div>
                 `;
             }).join('');
@@ -5938,6 +6972,13 @@
             showToast(found > 0 ? `⚠️ Обнаружен скрытый дефект: ${phone.hiddenDefects[0].label}!` : '✅ Тест пройден: скрытых дефектов нет!', found > 0 ? 'error' : 'success');
         };
 
+        window.goFlashPhone = function(uid) {
+            state.activeWorkshopPhoneId = uid;
+            state.workshopTab = 'firmware';
+            openApp('workshop');
+            setWorkshopTab('firmware');
+        };
+
         window.fixHiddenDefect = function(uid, defectId) {
             const phone = state.inventory.find(p => p.uid === uid);
             if (!phone) return;
@@ -5945,7 +6986,9 @@
             if (idx === -1) return;
             const hd = phone.hiddenDefects[idx];
             const hasStation = state.upgrades && state.upgrades.solderingStation;
-            const cost = hasStation ? hd.fixStationCost : hd.fixBaseCost;
+            const hasRootSoft = state.upgrades && state.upgrades.rootHideSoft;
+            let cost = hasStation ? hd.fixStationCost : hd.fixBaseCost;
+            if (hd.id === 'lock' && hasRootSoft) cost = Math.round(cost * 0.7);
             if (state.money < cost) {
                 showToast(`Не хватает ${formatRub(cost)} на устранение дефекта!`, 'error');
                 return;
@@ -6117,6 +7160,9 @@
                 buyPrice: cl.askPrice,
                 partsSpent: 0,
                 installedQuality: {},
+                firmwareState: rollFirmwareState(cl.brand, true),
+                firmwareChecked: false,
+                batteryChargedForFlash: false,
                 hasFullKit: false,
                 diagnosed: false,
                 hiddenDefects: cl.hiddenDefects || [],
@@ -6209,6 +7255,40 @@
                     ${!u.optbazaFriend ? `
                         <button onclick="buyUpgrade('friend')" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black text-xs">
                             Договориться со складом (48 000 ₽)
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold text-white">💻 Программатор EDL / Auth-аккаунт</h3>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.edlBox ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                            ${u.edlBox ? 'Куплено' : '42 000 ₽'}
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        Позволяет поднимать мёртвые кирпичи (Hard-Brick EDL) и прошивать китайские Android-смартфоны сразу в чистый Global с заблокированным загрузчиком без риска сбоя.
+                    </p>
+                    ${!u.edlBox ? `
+                        <button onclick="buyUpgrade('edl')" class="w-full py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 active:scale-95 text-slate-950 font-black text-xs">
+                            Купить программатор (42 000 ₽)
+                        </button>
+                    ` : ''}
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-extrabold text-white">🛡️ Софт Play Integrity / Скрытие Root</h3>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.rootHideSoft ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400'}">
+                            ${u.rootHideSoft ? 'Активно' : '24 000 ₽'}
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        Скрывает разблокированный загрузчик и Root от банковских приложений в «Программаторе», а также даёт скидку 30% на снятие iCloud / FRP в 3uTools.
+                    </p>
+                    ${!u.rootHideSoft ? `
+                        <button onclick="buyUpgrade('rootsoft')" class="w-full py-2.5 rounded-xl bg-purple-500 hover:bg-purple-400 active:scale-95 text-slate-950 font-black text-xs">
+                            Купить лицензию (24 000 ₽)
                         </button>
                     ` : ''}
                 </div>
@@ -6591,6 +7671,16 @@
                 state.upgrades.optbazaFriend = true;
                 state.partsOutOfStock = {};
                 showToast('Оптовая скидка -15% на ОптБазе активирована!', 'success');
+            } else if (type === 'edl' && !state.upgrades.edlBox) {
+                if (state.money < 42000) return showToast('Не хватает 42 000 ₽!', 'error');
+                state.money -= 42000;
+                state.upgrades.edlBox = true;
+                showToast('Программатор EDL / Auth-аккаунт подключён!', 'success');
+            } else if (type === 'rootsoft' && !state.upgrades.rootHideSoft) {
+                if (state.money < 24000) return showToast('Не хватает 24 000 ₽!', 'error');
+                state.money -= 24000;
+                state.upgrades.rootHideSoft = true;
+                showToast('Софт Play Integrity / Magisk активирован!', 'success');
             }
             updateUI();
             renderUpgradesApp();
@@ -6696,7 +7786,7 @@
         };
 
         window.setWallpaper = function(wp) {
-            state.wallpaper = wp;
+            state.wallpaper = wp; state.unifiedOsColor = '';
             updateUI();
             showToast('Обои рабочего стола изменены!', 'info');
         };
@@ -7037,6 +8127,9 @@
                 buyPrice: 0,
                 partsSpent: 0,
                 installedQuality: {},
+                firmwareState: isBroken ? 'cn' : 'global',
+                firmwareChecked: true,
+                batteryChargedForFlash: false,
                 hasFullKit: false,
                 diagnosed: true,
                 hiddenDefects: [],
