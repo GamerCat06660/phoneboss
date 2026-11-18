@@ -126,6 +126,72 @@
                         radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.15), transparent 50%),
                         linear-gradient(180deg, #18130a 0%, #090d16 70%, #050811 100%);
         }
+        .wallpaper-crimson {
+            background: radial-gradient(circle at 20% 15%, rgba(244, 63, 94, 0.28), transparent 45%),
+                        radial-gradient(circle at 85% 75%, rgba(234, 88, 12, 0.22), transparent 50%),
+                        linear-gradient(180deg, #1c070d 0%, #090d16 70%, #050811 100%);
+        }
+        .wallpaper-arctic {
+            background: radial-gradient(circle at 25% 15%, rgba(56, 189, 248, 0.28), transparent 48%),
+                        radial-gradient(circle at 80% 35%, rgba(186, 230, 253, 0.18), transparent 50%),
+                        linear-gradient(180deg, #061826 0%, #090d16 70%, #050811 100%);
+        }
+        .wallpaper-matrix {
+            background: radial-gradient(circle at 50% 10%, rgba(34, 197, 94, 0.26), transparent 50%),
+                        radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.16), transparent 50%),
+                        linear-gradient(180deg, #03150b 0%, #050a08 75%, #020503 100%);
+        }
+        .wallpaper-sunset {
+            background: radial-gradient(circle at 20% 18%, rgba(251, 146, 60, 0.28), transparent 46%),
+                        radial-gradient(circle at 82% 28%, rgba(236, 72, 153, 0.24), transparent 50%),
+                        linear-gradient(180deg, #1f0d1b 0%, #0d0b1a 70%, #050811 100%);
+        }
+        .wallpaper-midnight {
+            background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.16), transparent 50%),
+                        linear-gradient(180deg, #05070e 0%, #02040a 100%);
+        }
+        .shell-frame-default { border-color: rgba(30, 41, 59, 0.75); }
+        .shell-frame-titanium { border-color: rgba(203, 213, 225, 0.55); box-shadow: 0 0 32px rgba(148, 163, 184, 0.16); }
+        .shell-frame-gold { border-color: rgba(245, 158, 11, 0.65); box-shadow: 0 0 34px rgba(245, 158, 11, 0.22); }
+        .shell-frame-neon { border-color: rgba(34, 211, 238, 0.65); box-shadow: 0 0 34px rgba(34, 211, 238, 0.24); }
+        .shell-frame-emerald { border-color: rgba(16, 185, 129, 0.65); box-shadow: 0 0 34px rgba(16, 185, 129, 0.22); }
+
+        .icon-pack-glass button > div:first-child {
+            background: rgba(255, 255, 255, 0.08) !important;
+            backdrop-filter: blur(12px);
+            border-color: rgba(255, 255, 255, 0.28) !important;
+        }
+        .icon-pack-gold button > div:first-child {
+            background: linear-gradient(135deg, #f59e0b, #b45309, #451a03) !important;
+            border-color: rgba(253, 224, 71, 0.55) !important;
+        }
+        .icon-pack-cyber button > div:first-child {
+            background: linear-gradient(135deg, #06b6d4, #6366f1, #c026d3) !important;
+            border-color: rgba(103, 232, 249, 0.55) !important;
+        }
+        .icon-pack-mono button > div:first-child {
+            background: linear-gradient(135deg, #334155, #1e293b, #090d16) !important;
+            border-color: rgba(148, 163, 184, 0.4) !important;
+        }
+
+        .snowflake-item {
+            position: absolute;
+            top: -16px;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 0 6px rgba(186, 230, 253, 0.8);
+            user-select: none;
+            pointer-events: none;
+            animation-name: snowFall;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+        @keyframes snowFall {
+            0% { transform: translateY(-10px) translateX(0px) rotate(0deg); opacity: 0; }
+            12% { opacity: 0.92; }
+            50% { transform: translateY(48vh) translateX(14px) rotate(180deg); }
+            90% { opacity: 0.85; }
+            100% { transform: translateY(102vh) translateX(-10px) rotate(360deg); opacity: 0; }
+        }
         .tool-active {
             border-color: #f59e0b !important;
             background: rgba(245, 158, 11, 0.18) !important;
@@ -147,10 +213,13 @@
     </div>
 
     <!-- Корпус смартфона игрока -->
-    <div id="phone-shell" class="relative w-full h-full max-w-md mx-auto wallpaper-default flex flex-col overflow-hidden shadow-2xl border-x border-slate-800/70">
+    <div id="phone-shell" class="relative w-full h-full max-w-md mx-auto wallpaper-default shell-frame-default flex flex-col overflow-hidden shadow-2xl border-x border-slate-800/70">
 
-        <!-- Верхний системный статус-бар ОС -->
-        <header class="shrink-0 h-11 px-4 flex items-center justify-between bg-slate-950/75 backdrop-blur-xl border-b border-white/5 z-30">
+        <!-- Контейнер падающего снега (кастомизация) -->
+        <div id="snow-overlay" class="hidden fixed inset-0 max-w-md mx-auto pointer-events-none z-40 overflow-hidden"></div>
+
+        <!-- Верхний системный статус-бар ОС (понижен от системной шторки телефона) -->
+        <header style="padding-top: max(14px, env(safe-area-inset-top));" class="shrink-0 min-h-[58px] pb-2 px-4 flex items-center justify-between bg-slate-950/80 backdrop-blur-xl border-b border-white/5 z-30">
             <div class="flex items-center gap-2">
                 <span id="status-time" class="text-xs font-extrabold text-white tracking-tight">12:45</span>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/25">
@@ -160,13 +229,10 @@
 
             <button onclick="openApp('profile')" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-slate-700/80 text-[10px] font-semibold hover:border-slate-500 transition">
                 <span id="cloud-dot" class="w-2 h-2 rounded-full bg-slate-500"></span>
-                <span id="cloud-status-label" class="text-slate-200 max-w-[78px] truncate">Офлайн</span>
+                <span id="cloud-status-label" class="text-slate-200 max-w-[82px] truncate">Офлайн</span>
             </button>
 
             <div class="flex items-center gap-2">
-                <button id="sound-toggle-btn" onclick="toggleSound()" class="w-7 h-7 rounded-full bg-slate-900/90 border border-slate-700/80 flex items-center justify-center text-slate-300 hover:text-white active:scale-90 transition" title="Вкл/Выкл звук">
-                    <i id="sound-toggle-icon" class="fa-solid fa-volume-high text-[10px]"></i>
-                </button>
                 <div class="flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full">
                     <i class="fa-solid fa-ruble-sign text-emerald-400 text-[10px]"></i>
                     <span id="hud-money" class="text-xs font-black text-emerald-300">15 000 ₽</span>
@@ -176,7 +242,7 @@
         </header>
 
         <!-- Контейнер всплывающих уведомлений -->
-        <div id="toast-container" class="fixed top-12 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm pointer-events-none flex flex-col gap-2"></div>
+        <div id="toast-container" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-sm pointer-events-none flex flex-col gap-2"></div>
 
         <!-- ОСНОВНАЯ ОБЛАСТЬ ЭКРАНА СМАРТФОНА -->
         <main class="relative flex-1 overflow-hidden">
@@ -186,7 +252,7 @@
                 
                 <div class="space-y-2.5">
                     <!-- Виджет Перекуп Банка и Репутации -->
-                    <div class="bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden">
+                    <div id="home-bank-widget" class="bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden">
                         <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-1.5">
@@ -235,7 +301,7 @@
                     </div>
 
                     <!-- Сетка иконок приложений (без дубликатов с Dock, 4 в ряду) -->
-                    <div class="grid grid-cols-4 gap-y-2 gap-x-2 pt-1">
+                    <div id="home-apps-grid" class="grid grid-cols-4 gap-y-2 gap-x-2 pt-1">
                         <button onclick="openApp('parts')" class="app-icon-btn flex flex-col items-center gap-1 group">
                             <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-purple-500 via-violet-600 to-indigo-800 flex items-center justify-center shadow-lg shadow-purple-950/60 border border-white/25 relative">
                                 <i class="fa-solid fa-microchip text-xl text-white"></i>
@@ -269,9 +335,9 @@
 
                         <button onclick="openApp('profile')" class="app-icon-btn flex flex-col items-center gap-1 group">
                             <div class="w-12 h-12 rounded-[16px] bg-gradient-to-br from-cyan-400 via-sky-600 to-slate-800 flex items-center justify-center shadow-lg shadow-cyan-950/60 border border-white/25 relative">
-                                <i class="fa-solid fa-user-gear text-xl text-white"></i>
+                                <i class="fa-solid fa-gear text-xl text-white"></i>
                             </div>
-                            <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Профиль</span>
+                            <span class="text-[10px] font-semibold text-slate-100 drop-shadow">Настройки</span>
                         </button>
                     </div>
 
@@ -287,7 +353,7 @@
                 </div>
 
                 <!-- Нижний стеклянный Dock с основными приложениями и бейджами -->
-                <div class="mt-2 bg-white/10 backdrop-blur-xl border border-white/15 rounded-[26px] py-2 px-2.5 flex items-center justify-around shadow-2xl">
+                <div id="home-dock-bar" class="mt-2 bg-white/10 backdrop-blur-xl border border-white/15 rounded-[26px] py-2 px-2.5 flex items-center justify-around shadow-2xl">
                     <button onclick="openApp('market')" class="app-icon-btn flex flex-col items-center gap-0.5" title="Авито">
                         <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md border border-white/20 relative">
                             <i class="fa-solid fa-bag-shopping text-lg"></i>
@@ -515,8 +581,8 @@
                             <i class="fa-solid fa-chevron-left text-xs"></i>
                         </button>
                         <div>
-                            <h2 class="text-base font-extrabold text-white leading-none">Профиль & Настройки</h2>
-                            <span class="text-[11px] text-slate-400">Облако Firebase, кастомизация и промокоды</span>
+                            <h2 class="text-base font-extrabold text-white leading-none">Настройки</h2>
+                            <span class="text-[11px] text-slate-400">Звук, музыка, кастомизация, аккаунт и промокоды</span>
                         </div>
                     </div>
                 </div>
@@ -738,25 +804,108 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3 shadow-md">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3.5 shadow-md">
                         <h3 class="text-white font-bold text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-sliders text-sky-400"></i> Настройки системы
+                            <i class="fa-solid fa-volume-high text-emerald-400"></i> Звук и Музыка
+                        </h3>
+
+                        <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-2xl p-3">
+                            <div>
+                                <div class="text-xs font-bold text-white">Системные звуки</div>
+                                <div class="text-[10px] text-slate-400">Щелчки, пайка, касса и уведомления</div>
+                            </div>
+                            <button id="settings-sfx-btn" onclick="toggleSound()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition">
+                                Вкл
+                            </button>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3 space-y-2.5">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs font-bold text-white">Фоновая музыка (Lo-Fi Synth)</div>
+                                    <div class="text-[10px] text-slate-400">Атмосферный бит для переборки трубок</div>
+                                </div>
+                                <button id="settings-music-btn" onclick="toggleMusic()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 font-black text-xs transition">
+                                    Выкл
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-2 pt-1 border-t border-slate-800/80">
+                                <i class="fa-solid fa-volume-low text-[10px] text-slate-400"></i>
+                                <input id="settings-music-vol" oninput="setMusicVolume(this.value)" type="range" min="5" max="100" value="45" class="flex-1 accent-sky-500 cursor-pointer">
+                                <span id="settings-music-vol-label" class="text-[10px] font-bold text-slate-300 w-8 text-right">45%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3.5 shadow-md">
+                        <h3 class="text-white font-bold text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-sky-400"></i> Кастомизация ОС
                         </h3>
 
                         <div>
-                            <label class="text-[11px] text-slate-400 block mb-1">Название твоего магазина на рабочем столе</label>
+                            <label class="text-[11px] text-slate-400 block mb-1">Название твоего магазина на виджете</label>
                             <div class="flex gap-2">
-                                <input id="settings-shop-input" type="text" placeholder="Perekup Store" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                                <button onclick="saveShopName()" class="px-3 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">ОК</button>
+                                <input id="settings-shop-input" type="text" placeholder="Perekup Bank" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                                <button onclick="saveShopName()" class="px-3.5 py-2 rounded-xl bg-sky-600 text-white text-xs font-bold">ОК</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-2xl p-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-300 flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-snowflake"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-white">Снегопад на экране</div>
+                                    <div class="text-[10px] text-slate-400">Зимняя атмосфера поверх интерфейса</div>
+                                </div>
+                            </div>
+                            <button id="settings-snow-btn" onclick="toggleSnow()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 font-black text-xs transition">
+                                Выкл
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1.5">Обои рабочего стола (8 тем)</label>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button onclick="setWallpaper('default')" id="wp-btn-default" class="py-2 px-1 rounded-xl bg-slate-950 border border-emerald-500/40 text-[10px] font-bold text-emerald-300">Изумруд</button>
+                                <button onclick="setWallpaper('cyber')" id="wp-btn-cyber" class="py-2 px-1 rounded-xl bg-slate-950 border border-fuchsia-500/40 text-[10px] font-bold text-fuchsia-300">Кибер</button>
+                                <button onclick="setWallpaper('gold')" id="wp-btn-gold" class="py-2 px-1 rounded-xl bg-slate-950 border border-amber-500/40 text-[10px] font-bold text-amber-300">Золото</button>
+                                <button onclick="setWallpaper('crimson')" id="wp-btn-crimson" class="py-2 px-1 rounded-xl bg-slate-950 border border-rose-500/40 text-[10px] font-bold text-rose-300">Рубин</button>
+                                <button onclick="setWallpaper('arctic')" id="wp-btn-arctic" class="py-2 px-1 rounded-xl bg-slate-950 border border-sky-500/40 text-[10px] font-bold text-sky-300">Арктика</button>
+                                <button onclick="setWallpaper('matrix')" id="wp-btn-matrix" class="py-2 px-1 rounded-xl bg-slate-950 border border-green-500/40 text-[10px] font-bold text-green-300">Матрица</button>
+                                <button onclick="setWallpaper('sunset')" id="wp-btn-sunset" class="py-2 px-1 rounded-xl bg-slate-950 border border-orange-500/40 text-[10px] font-bold text-orange-300">Закат</button>
+                                <button onclick="setWallpaper('midnight')" id="wp-btn-midnight" class="py-2 px-1 rounded-xl bg-slate-950 border border-indigo-500/40 text-[10px] font-bold text-indigo-300">Ночь</button>
                             </div>
                         </div>
 
                         <div>
-                            <label class="text-[11px] text-slate-400 block mb-1.5">Тема обоев рабочего стола</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <button onclick="setWallpaper('default')" class="py-2 rounded-xl bg-slate-950 border border-emerald-500/40 text-[11px] font-bold text-emerald-300">Изумруд</button>
-                                <button onclick="setWallpaper('cyber')" class="py-2 rounded-xl bg-slate-950 border border-fuchsia-500/40 text-[11px] font-bold text-fuchsia-300">Киберпанк</button>
-                                <button onclick="setWallpaper('gold')" class="py-2 rounded-xl bg-slate-950 border border-amber-500/40 text-[11px] font-bold text-amber-300">Золото</button>
+                            <label class="text-[11px] text-slate-400 block mb-1.5">Стиль виджета банка</label>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button onclick="setWidgetTheme('emerald')" class="py-2 px-1 rounded-xl bg-slate-950 border border-emerald-500/40 text-[10px] font-bold text-emerald-300">Стандарт</button>
+                                <button onclick="setWidgetTheme('obsidian')" class="py-2 px-1 rounded-xl bg-slate-950 border border-slate-600 text-[10px] font-bold text-slate-200">Карбон</button>
+                                <button onclick="setWidgetTheme('royal')" class="py-2 px-1 rounded-xl bg-slate-950 border border-indigo-500/40 text-[10px] font-bold text-indigo-300">Индиго</button>
+                                <button onclick="setWidgetTheme('gold')" class="py-2 px-1 rounded-xl bg-slate-950 border border-amber-500/40 text-[10px] font-bold text-amber-300">VIP Голд</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1.5">Пакет иконок приложений</label>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button onclick="setIconPack('default')" class="py-2 px-1 rounded-xl bg-slate-950 border border-slate-700 text-[10px] font-bold text-white">Цветные</button>
+                                <button onclick="setIconPack('glass')" class="py-2 px-1 rounded-xl bg-slate-950 border border-sky-500/40 text-[10px] font-bold text-sky-200">Стекло</button>
+                                <button onclick="setIconPack('gold')" class="py-2 px-1 rounded-xl bg-slate-950 border border-amber-500/40 text-[10px] font-bold text-amber-300">Золото</button>
+                                <button onclick="setIconPack('cyber')" class="py-2 px-1 rounded-xl bg-slate-950 border border-fuchsia-500/40 text-[10px] font-bold text-fuchsia-300">Неон</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[11px] text-slate-400 block mb-1.5">Рамка корпуса смартфона</label>
+                            <div class="grid grid-cols-4 gap-1.5">
+                                <button onclick="setFrameStyle('default')" class="py-2 px-1 rounded-xl bg-slate-950 border border-slate-700 text-[10px] font-bold text-slate-300">Графит</button>
+                                <button onclick="setFrameStyle('titanium')" class="py-2 px-1 rounded-xl bg-slate-950 border border-slate-400 text-[10px] font-bold text-slate-100">Титан</button>
+                                <button onclick="setFrameStyle('gold')" class="py-2 px-1 rounded-xl bg-slate-950 border border-amber-400 text-[10px] font-bold text-amber-300">Золото</button>
+                                <button onclick="setFrameStyle('neon')" class="py-2 px-1 rounded-xl bg-slate-950 border border-cyan-400 text-[10px] font-bold text-cyan-300">Неон</button>
                             </div>
                         </div>
 
@@ -880,9 +1029,9 @@
 
         </main>
 
-        <!-- Нижняя системная полоска навигации -->
-        <footer class="shrink-0 h-14 pb-3 bg-slate-950/95 border-t border-white/10 flex items-center justify-center px-6 z-30">
-            <button onclick="goHome()" class="w-40 h-9 -mt-1 rounded-2xl flex items-center justify-center group active:scale-95 transition" title="На главный экран">
+        <!-- Нижняя системная полоска навигации (понижена к нижнему краю) -->
+        <footer style="padding-bottom: max(4px, env(safe-area-inset-bottom));" class="shrink-0 h-11 pt-2 bg-slate-950/95 border-t border-white/10 flex items-end justify-center px-6 z-30">
+            <button onclick="goHome()" class="w-44 h-7 rounded-2xl flex items-end justify-center pb-1 group active:scale-95 transition" title="На главный экран">
                 <span class="w-32 h-1.5 rounded-full bg-slate-500 group-hover:bg-slate-300 group-active:bg-white transition"></span>
             </button>
         </footer>
@@ -2164,8 +2313,138 @@
             state.soundEnabled = state.soundEnabled === false ? true : false;
             updateUI();
             if (state.soundEnabled) playSfx('pop');
-            showToast(state.soundEnabled ? 'Звуковые эффекты включены' : 'Звук отключён', 'info');
+            showToast(state.soundEnabled ? 'Системные звуки включены' : 'Системные звуки отключены', 'info');
         };
+
+        // ==================== ФОНОВАЯ МУЗЫКА (WEB AUDIO LO-FI SYNTH) ====================
+        let bgMusicTimer = null;
+        let bgMusicStep = 0;
+        const LOFI_CHORDS = [
+            [220.00, 261.63, 329.63, 392.00], // Am7
+            [174.61, 220.00, 261.63, 329.63], // Fmaj7
+            [130.81, 196.00, 246.94, 329.63], // Cmaj7
+            [164.81, 196.00, 246.94, 293.66]  // Em7
+        ];
+        const LOFI_MELODY = [523.25, 0, 493.88, 392.00, 440.00, 0, 329.63, 392.00, 349.23, 0, 329.63, 293.66, 329.63, 0, 261.63, 0];
+
+        function playMusicStep() {
+            if (!state.musicEnabled) return;
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+            const vol = Math.max(0.02, Math.min(1, (state.musicVolume || 45) / 100));
+
+            if (bgMusicStep % 4 === 0) {
+                const chord = LOFI_CHORDS[Math.floor(bgMusicStep / 4) % LOFI_CHORDS.length];
+                chord.forEach(freq => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const filter = ctx.createBiquadFilter();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(750, now);
+                    gain.gain.setValueAtTime(0.0001, now);
+                    gain.gain.linearRampToValueAtTime(0.022 * vol, now + 0.18);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.85);
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 1.9);
+                });
+            }
+
+            const note = LOFI_MELODY[bgMusicStep % LOFI_MELODY.length];
+            if (note > 0) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(note, now);
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.linearRampToValueAtTime(0.028 * vol, now + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.44);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.46);
+            }
+
+            bgMusicStep = (bgMusicStep + 1) % 16;
+        }
+
+        function syncBackgroundMusic() {
+            if (state.musicEnabled) {
+                if (!bgMusicTimer) {
+                    playMusicStep();
+                    bgMusicTimer = setInterval(playMusicStep, 480);
+                }
+            } else if (bgMusicTimer) {
+                clearInterval(bgMusicTimer);
+                bgMusicTimer = null;
+            }
+        }
+
+        window.toggleMusic = function() {
+            state.musicEnabled = !state.musicEnabled;
+            syncBackgroundMusic();
+            updateUI();
+            showToast(state.musicEnabled ? 'Фоновая музыка включена' : 'Фоновая музыка выключена', 'info');
+        };
+
+        window.setMusicVolume = function(val) {
+            state.musicVolume = Math.max(5, Math.min(100, parseInt(val, 10) || 45));
+            const lbl = document.getElementById('settings-music-vol-label');
+            if (lbl) lbl.textContent = state.musicVolume + '%';
+            saveLocal();
+        };
+
+        window.toggleSnow = function() {
+            state.snowEnabled = !state.snowEnabled;
+            updateUI();
+            showToast(state.snowEnabled ? '❄️ Снегопад включён!' : 'Снегопад выключен', 'info');
+        };
+
+        window.setWidgetTheme = function(theme) {
+            state.widgetTheme = theme;
+            updateUI();
+            showToast('Стиль виджета обновлён!', 'info');
+        };
+
+        window.setIconPack = function(pack) {
+            state.iconPack = pack;
+            updateUI();
+            showToast('Пакет иконок обновлён!', 'info');
+        };
+
+        window.setFrameStyle = function(frame) {
+            state.frameStyle = frame;
+            updateUI();
+            showToast('Рамка смартфона изменена!', 'info');
+        };
+
+        function ensureSnowflakesRendered() {
+            const overlay = document.getElementById('snow-overlay');
+            if (!overlay) return;
+            if (!state.snowEnabled) {
+                overlay.classList.add('hidden');
+                return;
+            }
+            overlay.classList.remove('hidden');
+            if (overlay.childElementCount === 0) {
+                const flakes = ['❄', '❅', '❆', '•'];
+                let html = '';
+                for (let i = 0; i < 28; i++) {
+                    const left = (i * 3.7) % 100;
+                    const delay = ((i * 0.43) % 6).toFixed(2);
+                    const duration = (5.5 + (i % 5) * 1.3).toFixed(2);
+                    const size = 9 + (i % 4) * 3;
+                    const sym = flakes[i % flakes.length];
+                    html += `<span class="snowflake-item" style="left:${left}%; animation-delay:${delay}s; animation-duration:${duration}s; font-size:${size}px;">${sym}</span>`;
+                }
+                overlay.innerHTML = html;
+            }
+        }
 
         function getPhoneMarketValuation(phone) {
             const currentIdeal = getDynamicIdealPrice(phone.modelId);
@@ -2211,7 +2490,13 @@
             playerNickname: '',
             shopName: 'Perekup Bank',
             wallpaper: 'default',
+            widgetTheme: 'emerald',
+            iconPack: 'default',
+            frameStyle: 'default',
+            snowEnabled: false,
             soundEnabled: true,
+            musicEnabled: false,
+            musicVolume: 45,
             marketFilter: 'all',
             avitoTab: 'home',
             avitoAdsSubtab: 'active',
@@ -2444,18 +2729,70 @@
             const newsText = document.getElementById('market-news-text');
             if (newsText) newsText.textContent = trend.news;
 
-            const sndIcon = document.getElementById('sound-toggle-icon');
-            if (sndIcon) {
-                sndIcon.className = state.soundEnabled === false
-                    ? 'fa-solid fa-volume-xmark text-[10px] text-rose-400'
-                    : 'fa-solid fa-volume-high text-[10px] text-emerald-300';
+            const sfxBtn = document.getElementById('settings-sfx-btn');
+            if (sfxBtn) {
+                const sfxOn = state.soundEnabled !== false;
+                sfxBtn.textContent = sfxOn ? 'Вкл' : 'Выкл';
+                sfxBtn.className = sfxOn
+                    ? 'px-3.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs transition'
+                    : 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs transition';
             }
+
+            const musBtn = document.getElementById('settings-music-btn');
+            if (musBtn) {
+                const musOn = Boolean(state.musicEnabled);
+                musBtn.textContent = musOn ? 'Вкл' : 'Выкл';
+                musBtn.className = musOn
+                    ? 'px-3.5 py-1.5 rounded-xl bg-sky-500 text-slate-950 font-black text-xs transition'
+                    : 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs transition';
+            }
+            const musVol = document.getElementById('settings-music-vol');
+            const musVolLbl = document.getElementById('settings-music-vol-label');
+            if (musVol) musVol.value = state.musicVolume || 45;
+            if (musVolLbl) musVolLbl.textContent = (state.musicVolume || 45) + '%';
+
+            const snowBtn = document.getElementById('settings-snow-btn');
+            if (snowBtn) {
+                const snowOn = Boolean(state.snowEnabled);
+                snowBtn.textContent = snowOn ? 'Вкл' : 'Выкл';
+                snowBtn.className = snowOn
+                    ? 'px-3.5 py-1.5 rounded-xl bg-sky-400 text-slate-950 font-black text-xs transition'
+                    : 'px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 font-black text-xs transition';
+            }
+            ensureSnowflakesRendered();
 
             const shell = document.getElementById('phone-shell');
             if (shell) {
-                shell.classList.remove('wallpaper-default', 'wallpaper-cyber', 'wallpaper-gold');
+                shell.classList.remove(
+                    'wallpaper-default', 'wallpaper-cyber', 'wallpaper-gold',
+                    'wallpaper-crimson', 'wallpaper-arctic', 'wallpaper-matrix',
+                    'wallpaper-sunset', 'wallpaper-midnight',
+                    'shell-frame-default', 'shell-frame-titanium', 'shell-frame-gold', 'shell-frame-neon', 'shell-frame-emerald'
+                );
                 shell.classList.add('wallpaper-' + (state.wallpaper || 'default'));
+                shell.classList.add('shell-frame-' + (state.frameStyle || 'default'));
             }
+
+            const bankW = document.getElementById('home-bank-widget');
+            if (bankW) {
+                const wStyles = {
+                    emerald: 'bg-gradient-to-br from-emerald-600/95 via-teal-700/95 to-slate-900/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-emerald-400/30 relative overflow-hidden',
+                    obsidian: 'bg-gradient-to-br from-slate-800/95 via-zinc-900/95 to-black/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-slate-600/50 relative overflow-hidden',
+                    royal: 'bg-gradient-to-br from-indigo-600/95 via-purple-800/95 to-slate-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-indigo-400/35 relative overflow-hidden',
+                    gold: 'bg-gradient-to-br from-amber-500/95 via-yellow-700/95 to-stone-950/95 backdrop-blur-md rounded-3xl p-3 shadow-lg border border-amber-300/45 relative overflow-hidden'
+                };
+                bankW.className = wStyles[state.widgetTheme || 'emerald'] || wStyles.emerald;
+            }
+
+            const appsGrid = document.getElementById('home-apps-grid');
+            const dockBar = document.getElementById('home-dock-bar');
+            [appsGrid, dockBar].forEach(el => {
+                if (!el) return;
+                el.classList.remove('icon-pack-glass', 'icon-pack-gold', 'icon-pack-cyber', 'icon-pack-mono');
+                if (state.iconPack && state.iconPack !== 'default') {
+                    el.classList.add('icon-pack-' + state.iconPack);
+                }
+            });
 
             const totalOffers = (state.myListings || []).reduce((acc, item) => acc + (item.offers ? item.offers.length : 0), 0);
             const mBadge = document.getElementById('badge-market');
@@ -5846,24 +6183,24 @@
 
                 return `
                     <div class="bg-slate-900 border ${it.ownedCount > 0 ? 'border-emerald-500/45' : 'border-slate-800'} rounded-2xl p-3 space-y-2.5 shadow-md">
-                        <div class="flex items-center gap-3">
-                            <div class="p-1.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0">
+                        <div class="flex items-start gap-2.5">
+                            <div class="p-1.5 rounded-xl bg-slate-950 border border-slate-800 shrink-0 mt-0.5">
                                 ${svg}
                             </div>
-                            <div class="flex-1 min-w-0 space-y-1">
-                                <div class="flex items-start justify-between gap-2">
-                                    <div class="min-w-0">
+                            <div class="flex-1 min-w-0 space-y-1.5">
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between gap-1.5 flex-wrap">
                                         <div class="flex items-center gap-1.5 flex-wrap">
                                             <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded border ${tierCls}">${tierLabel}</span>
                                             <span class="text-[10px] font-bold text-slate-400">${it.specs.brandGroup}</span>
                                             ${it.ownedCount > 0 ? `<span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">У тебя: ${it.ownedCount} шт.</span>` : ''}
                                         </div>
-                                        <h3 class="text-sm font-black text-white truncate mt-0.5">${it.name}</h3>
+                                        <div class="text-right">
+                                            <span class="text-xs font-black text-emerald-400">${formatRub(it.livePrice)}</span>
+                                            <span class="ml-1">${diffBadge}</span>
+                                        </div>
                                     </div>
-                                    <div class="text-right shrink-0">
-                                        <div class="text-sm font-black text-emerald-400">${formatRub(it.livePrice)}</div>
-                                        <div>${diffBadge}</div>
-                                    </div>
+                                    <h3 class="text-[13px] font-black text-white leading-snug break-words">${it.name}</h3>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-1 pt-1 text-[10px] text-slate-300">
@@ -6611,6 +6948,9 @@
             generatePartsStock();
         }
         updateUI();
+        document.addEventListener('pointerdown', () => {
+            if (state.musicEnabled && !bgMusicTimer) syncBackgroundMusic();
+        }, { once: true });
     </script>
 
     <script>
