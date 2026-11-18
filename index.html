@@ -6763,20 +6763,36 @@
         };
 
         // ==================== СКЛАД, КОМПЛЕКТАЦИЯ И ПЕРЕПРОДАЖА ====================
-        window.attachAccessoryKitToPhone = function(uid) {
+       window.attachAccessoryKitToPhone = function(uid) {
             const phone = state.inventory.find(p => p.uid === uid);
             if (!phone || phone.hasFullKit) return;
-            if ((state.accessoryKitsCount || 0) <= 0) {
-                showToast('На складе нет комплектов! Купи в приложении «Запчасти».', 'error');
+
+            if ((state.accessoryKitsCount || 0) > 0) {
+                state.accessoryKitsCount -= 1;
+                phone.hasFullKit = true;
+                phone.partsSpent = (phone.partsSpent || 0) + 500;
+                playSfx('pop');
+                updateUI();
+                renderInventory();
+                saveToFirestore(false);
+                showToast(`Комплект со склада добавлен к ${phone.modelName} (+1 000 ₽ к оценке)!`, 'success');
                 return;
             }
-            state.accessoryKitsCount -= 1;
+
+            if (state.money < 500) {
+                playSfx('error');
+                showToast('Не хватает 500 ₽ на покупку комплекта аксессуаров!', 'error');
+                return;
+            }
+
+            state.money -= 500;
             phone.hasFullKit = true;
             phone.partsSpent = (phone.partsSpent || 0) + 500;
+            playSfx('buy');
             updateUI();
             renderInventory();
             saveToFirestore(false);
-            showToast(`Комплект добавлен к ${phone.modelName} (+1 000 ₽ к оценке продажи)!`, 'success');
+            showToast(`Куплен и добавлен комплект к ${phone.modelName} (-500 ₽, +1 000 ₽ к оценке)!`, 'success');
         };
 
         function renderInventory() {
@@ -6852,8 +6868,8 @@
                                 </button>
                             ` : ''}
                             ${!p.hasFullKit ? `
-                                <button onclick="attachAccessoryKitToPhone('${p.uid}')" class="px-2.5 py-2 rounded-xl bg-purple-500/15 border border-purple-500/35 text-purple-300 font-bold text-[11px]">
-                                    <i class="fa-solid fa-box-open mr-1"></i> +Комплект (${state.accessoryKitsCount || 0})
+                                <button onclick="attachAccessoryKitToPhone('${p.uid}')" class="px-2.5 py-2 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/35 text-purple-300 font-bold text-[11px] active:scale-95 transition">
+                                    <i class="fa-solid fa-box-open mr-1"></i> ${(state.accessoryKitsCount || 0) > 0 ? `+Комплект (склад: ${state.accessoryKitsCount})` : '+Комплект (500 ₽)'}
                                 </button>
                             ` : ''}
                             ${defectsCount > 0 || isDisassembled || screwsOpen ? `
